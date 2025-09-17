@@ -158,6 +158,21 @@
             gap: 10px;
         }
 
+        .section-header { 
+            display:flex; 
+            align-items:center; 
+            justify-content:space-between; 
+        }
+        .section-meta {
+            font-size: 0.95rem; 
+            font-weight: 600; 
+            padding: 6px 10px; 
+            border-radius: 8px;
+            background: #eaf2ff; 
+            border: 1px solid #bcd4ff; 
+            color:#1f2937;
+        }
+
         .form-row {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -510,17 +525,18 @@
 
             <!-- Audit Information -->
             <div class="form-section">
-                <h3>
+                <h3 class="section-header">
                     <span class="icon">📋</span>
                     <span data-translate="audit_compliance">Audit & Compliance</span>
+                    <span id="avgLaborMeta" class="section-meta"></span>
                 </h3>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="auditsPerYear">Audits per Year</label>
+                        <label for="auditsPerYear" data-translate="audits_per_year">Audits per Year</label>
                         <input type="number" id="auditsPerYear" min="0" step="0.1" onchange="calculateSavings()">
                     </div>
                     <div class="form-group">
-                        <label for="auditHours">Total Hours per Audit</label>
+                        <label for="auditHours" data-translate="hours_per_audit">Total Hours per Audit</label>
                         <input type="number" id="auditHours" min="0" step="0.5" onchange="calculateSavings()">
                     </div>
                 </div>
@@ -534,21 +550,21 @@
                 </h3>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="recallFrequency">Recalls in Past 5 Years</label>
+                        <label for="recallFrequency" data-translate="recalls_past_5">Recalls in Past 5 Years</label>
                         <input type="number" id="recallFrequency" min="0" step="1" onchange="calculateSavings()">
                     </div>
                     <div class="form-group">
-                        <label for="avgRecallValue">Average Value of Product Recalled (€)</label>
+                        <label for="avgRecallValue" data-translate="avg_recall_value">Average Value of Product Recalled (€)</label>
                         <input type="number" id="avgRecallValue" min="0" step="100" onchange="calculateSavings()">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="reputationalImpact">Reputational Impact Cost (€)</label>
+                        <label for="reputationalImpact" data-translate="reputational_impact">Reputational Impact Cost (€)</label>
                         <input type="number" id="reputationalImpact" min="0" step="1000" onchange="calculateSavings()">
                     </div>
                     <div class="form-group">
-                        <label for="lostSales">Lost Future Sales (€)</label>
+                        <label for="lostSales" data-translate="lost_sales">Lost Future Sales (€)</label>
                         <input type="number" id="lostSales" min="0" step="1000" onchange="calculateSavings()">
                     </div>
                 </div>
@@ -833,7 +849,7 @@ window.translations = {
     problem_desc: "Handmatig papierwerk, talloze schakels, nul transparantie. Uw keten verzuipt in inefficiëntie.",
     solution_title: "✅ VeriPura-oplossing: digitale verificatie, directe traceerbaarheid, volledig vertrouwen.",
     solution_desc: "We zetten niet slechts papier online; we creëren een onvervalsbare vertrouwensketen van boer tot schap.",
-    cta_subtitle: "Bereken exact wat deze inefficiëntie ú kost:",
+    cta_subtitle: "Bereken exact wat deze inefficiëntie Ú kost:",
     import_volume: "Uw importvolume",
     containers_month: "Containers per maand",
     containers_year: "Containers per jaar",
@@ -879,6 +895,47 @@ window.translations = {
   }
 };
 
+Object.assign(window.translations.en, {
+  audits_per_year: "Audits per Year",
+  hours_per_audit: "Total Hours per Audit",
+  recalls_past_5: "Recalls in Past 5 Years",
+  avg_recall_value: "Average Value of Product Recalled (€)",
+  reputational_impact: "Reputational Impact Cost (€)",
+  lost_sales: "Lost Future Sales (€)",
+  avg_labor_cost: "Average Labor Cost",
+  per_hour: "per hour"
+});
+Object.assign(window.translations.de, {
+  audits_per_year: "Audits pro Jahr",
+  hours_per_audit: "Gesamtstunden pro Audit",
+  recalls_past_5: "Rückrufe in den letzten 5 Jahren",
+  avg_recall_value: "Durchschnittlicher Wert zurückgerufener Ware (€)",
+  reputational_impact: "Reputationsschaden (€)",
+  lost_sales: "Verlorene zukünftige Umsätze (€)",
+  avg_labor_cost: "Durchschnittliche Arbeitskosten",
+  per_hour: "pro Stunde"
+});
+Object.assign(window.translations.fr, {
+  audits_per_year: "Audits par an",
+  hours_per_audit: "Heures totales par audit",
+  recalls_past_5: "Rappels sur les 5 dernières années",
+  avg_recall_value: "Valeur moyenne des produits rappelés (€)",
+  reputational_impact: "Coût d'impact réputationnel (€)",
+  lost_sales: "Perte de ventes futures (€)",
+  avg_labor_cost: "Coût moyen de la main-d'œuvre",
+  per_hour: "par heure"
+});
+Object.assign(window.translations.nl, {
+  audits_per_year: "Audits per jaar",
+  hours_per_audit: "Totale uren per audit",
+  recalls_past_5: "Recalls in de afgelopen 5 jaar",
+  avg_recall_value: "Gem. waarde van teruggeroepen product (€)",
+  reputational_impact: "Reputatieschade (€)",
+  lost_sales: "Verloren toekomstige omzet (€)",
+  avg_labor_cost: "Gemiddelde loonkosten",
+  per_hour: "per uur"
+});
+
 window.currentLang = 'en';
 window.t = (key) => (window.translations[window.currentLang]?.[key]) ?? window.translations.en[key] ?? key;
 
@@ -921,9 +978,13 @@ function calculateSavings() {
   const hourlyRate = !isNaN(inputHourlyRate) ? inputHourlyRate : (countryRates[country]?.rate || 30);
   const currency = countryRates[country]?.currency || '€';
 
-  // expose for PDF
+  // expose values for other parts
   window.vpCurrency = currency;
   window.vpCountry  = country;
+
+  // NEW: update the top-right meta header with localized text
+  const meta = document.getElementById('avgLaborMeta');
+  if (meta) meta.textContent = `${t('avg_labor_cost')}: ${currency}${hourlyRate} ${t('per_hour')}`;
 
   const num = id => parseFloat(document.getElementById(id)?.value) || 0;
 

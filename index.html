@@ -1,2150 +1,1179 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf--8">
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VeriPura Demo — Single File Build</title>
-  <style>
-    :root{
-      --bg:#0b0d10;
-      --panel:#11151a;
-      --muted:#1a1f26;
-      --text:#e7edf3;
-      --sub:#a4b0be;
-      --brand:#4ade80;
-      --accent:#60a5fa;
-      --warn:#fbbf24;
-      --danger:#f87171;
-      --ok:#34d399;
-      --chip:#0f1720;
-      --border:#22303d;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji;
-    }
-    a{color:var(--accent);text-decoration:none}
-    .hidden{display:none!important}
-    .row{display:flex;gap:.75rem;align-items:center}
-    .col{display:flex;flex-direction:column;gap:.5rem}
-    .btn{
-      background:linear-gradient(180deg,#1b222b,#121820);
-      color:var(--text);
-      border:1px solid var(--border);
-      padding:.55rem .8rem;
-      border-radius:.6rem;
-      cursor:pointer;
-      transition:transform .05s ease,background .2s ease,opacity .2s ease;
-      font-weight:600;
-    }
-    .btn:hover{transform:translateY(-1px)}
-    .btn:disabled{opacity:.55;cursor:not-allowed}
-    .btn-primary{background:linear-gradient(180deg,#1e2732,#15202b);border-color:#294357}
-    .btn-brand{background:linear-gradient(180deg,#21b861,#15924a);border-color:#157a40}
-    .btn-warn{background:#3a2a10;border-color:#5a4217;color:#ffd37a}
-    .btn-danger{background:#3a1214;border-color:#5f1a20;color:#ffb4b7}
-    .chip{
-      display:inline-flex;align-items:center;gap:.4rem;
-      padding:.25rem .5rem;border-radius:999px;
-      background:var(--chip);border:1px solid var(--border);
-      font-size:.75rem;color:var(--sub)
-    }
-    .layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
-    .sidebar{
-      background:linear-gradient(180deg,#0e1318,#0b0f13);
-      border-right:1px solid var(--border);padding:1rem;position:sticky;top:0;height:100vh;overflow:auto
-    }
-    .brand{font-weight:800;letter-spacing:.3px}
-    .brand small{display:block;color:var(--sub);font-weight:600}
-    .nav{margin-top:1rem;display:flex;flex-direction:column;gap:.25rem}
-    .nav button{
-      text-align:left;width:100%;
-      background:transparent;border:1px solid transparent;color:var(--text);
-      padding:.55rem .6rem;border-radius:.55rem;cursor:pointer
-    }
-    .nav button.active,.nav button:hover{background:var(--panel);border-color:var(--border)}
-    main{padding:1rem 1.25rem}
-    .card{background:var(--panel);border:1px solid var(--border);border-radius:.9rem;padding:1rem}
-    .grid{display:grid;gap:1rem}
-    .grid.cols-2{grid-template-columns:1fr 1fr}
-    .grid.cols-3{grid-template-columns:repeat(3,1fr)}
-    .grid.cols-4{grid-template-columns:repeat(4,1fr)}
-    .table{width:100%;border-collapse:collapse}
-    .table th,.table td{border-bottom:1px solid var(--border);padding:.5rem .4rem;text-align:left;font-size:.92rem;vertical-align:top}
-    .table th{color:var(--sub);font-weight:700}
-    .table th.sortable{cursor:pointer}
-    .table th.sortable:hover{color:var(--text)}
-    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-size:.85rem;background:#0f1420;border:1px solid #1e2b38;padding:.1rem .35rem;border-radius:.35rem}
-    .input, select, textarea{
-      background:#0c1117;border:1px solid var(--border);color:var(--text);
-      padding:.5rem .55rem;border-radius:.55rem;outline:none
-    }
-    textarea{min-height:90px;resize:vertical}
-    .label{font-size:.85rem;color:var(--sub)}
-    .section-title{font-size:1.1rem;font-weight:800;margin:.25rem 0 .75rem 0}
-    .row-between{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
-    .accordion-item{border:1px solid var(--border);border-radius:.7rem;overflow:hidden;background:#0e1319}
-    .accordion-head{padding:.6rem .8rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
-    .accordion-body{padding:1rem;border-top:1px solid var(--border);display:none}
-    .tag{font-size:.72rem;padding:.15rem .45rem;border-radius:.4rem;border:1px solid var(--border);background:#0c1318;color:var(--sub)}
-    .tag.ok{color:#9fffc3;border-color:#1d5437;background:#0c1a14}
-    .tag.warn{color:#ffe39a;border-color:#4a3511;background:#1a140c}
-    .tag.block{color:#ffb2b2;border-color:#5a1a1a;background:#1a0c0c}
-    .toast{
-      position:fixed;bottom:18px;right:18px;background:#0f1720;color:#e9f0f6;border:1px solid #1f2b37;
-      padding:.65rem .8rem;border-radius:.6rem;min-width:200px;box-shadow:0 8px 20px rgba(0,0,0,.35);z-index:9999
-    }
-    .toast.ok{border-color:#1d5136}
-    .toast.warn{border-color:#614b17}
-    .toast.err{border-color:#5b1a1a}
-    .muted{color:var(--sub)}
-    .divider{height:1px;background:var(--border);margin:.75rem 0}
-    .pill{padding:.15rem .45rem;border-radius:999px;border:1px solid var(--border);background:#0a1016;color:var(--sub);font-size:.7rem}
-    .right{margin-left:auto}
-    .metric{display:flex;flex-direction:column;gap:.25rem}
-    .metric .h{font-size:.85rem;color:var(--sub)}
-    .metric .v{font-size:1.2rem;font-weight:800}
-    .danger{color:#ffb4b7}
-    .oktext{color:#9fffc3}
-    .warntext{color:#ffe39a}
-    .inline-form{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
-    .nowrap{white-space:nowrap}
-    .small{font-size:.85rem}
-    .sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px, 1px, 1px, 1px);white-space:nowrap;border:0;padding:0;margin:-1px}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VeriPura Savings Calculator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    /* Admin Tab styles */
-    .admin-tabs{display:flex;gap:.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem;}
-    .admin-tabs button{background:transparent;border:none;padding:.6rem .8rem;cursor:pointer;color:var(--sub);font-weight:600;border-bottom:2px solid transparent}
-    .admin-tabs button.active{color:var(--text);border-bottom-color:var(--brand)}
-    .admin-content{display:none;}
-    .admin-content.active{display:block;}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-.btn-ok {
-    background:linear-gradient(180deg,#15a37a,#108e68);
-    border-color:#157a40;
-    color: white;
-}
-.btn-ok:hover {
-  filter: brightness(0.95);
-}
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
 
-</style>
+        .header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .veripura-branding {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo-placeholder {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #1e40af;
+            font-size: 18px;
+        }
+
+        .brand-name {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .value-proposition {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .problem-statement, .solution-statement {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid transparent;
+        }
+
+        .problem-statement {
+            border-color: #e74c3c;
+        }
+
+        .solution-statement {
+            border-color: #27ae60;
+        }
+
+        .problem-statement h2, .solution-statement h2 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .problem-statement p, .solution-statement p {
+            font-size: 1rem;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+
+        .cta-subtitle {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-top: 20px;
+            color: #f39c12;
+        }
+
+        .controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .controls select {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 14px;
+        }
+
+        .controls select option {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid #3498db;
+        }
+
+        .form-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        .form-group input, .form-group select {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .pain-section {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .pain-section h3 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: white;
+        }
+
+        .pain-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .pain-card {
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .pain-card h4 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .pain-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .pain-card p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        .implications {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .implications h4 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .implications ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .implications li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .implications li::before {
+            content: "😰";
+            position: absolute;
+            left: 0;
+        }
+
+        .results-section {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .transformation-intro {
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .transformation-intro p {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        .meeting-cta {
+            background: rgba(255,255,255,0.15);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .meeting-cta h4 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+
+        .meeting-cta p {
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .btn-meeting {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: transform 0.3s;
+            margin: 10px 0;
+        }
+
+        .btn-meeting:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(243, 156, 18, 0.3);
+        }
+
+        .meeting-subtext {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .result-card {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .result-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .result-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .generate-section {
+            background: #fff;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(52, 152, 219, 0.3);
+        }
+
+        .footer-links {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .footer-links a {
+            color: #3498db;
+            text-decoration: none;
+            margin: 0 20px;
+            font-weight: 600;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            display: inline-block;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                position: static;
+                justify-content: center;
+                margin-top: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .value-proposition {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .problem-statement h2, .solution-statement h2 {
+                font-size: 1.1rem;
+            }
+
+            .cta-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div id="app"></div>
+    <div class="container">
+        <div class="header">
+            <div class="controls">
+                <!-- Language -->
+                <select id="languageSelect" onchange="window.changeLanguage()">
+                    <option value="en">English</option>
+                    <option value="de">Deutsch</option>
+                    <option value="fr">Français</option>
+                    <option value="nl">Nederlands</option>
+                </select>
 
-<script>
-(function(){
-  "use strict";
-
-  // ---------- Utilities ----------
-  const $ = (sel, root=document) => root.querySelector(sel);
-  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
-  const escapeHTML = (s) => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-  function toast(msg, kind='ok'){
-    const el = document.createElement('div');
-    el.className = 'toast ' + (kind==='warn'?'warn':kind==='err'?'err':'ok');
-    el.textContent = msg;
-    document.body.appendChild(el);
-    setTimeout(()=>{ el.remove(); }, 2600);
-  }
-  function save(){ localStorage.setItem('vp', JSON.stringify(state)); }
-  function load(){
-    try{
-      const raw = localStorage.getItem('vp');
-      if(!raw) return null;
-      return JSON.parse(raw);
-    }catch(e){ return null; }
-  }
-  function deepClone(x){ return JSON.parse(JSON.stringify(x)); }
-
-  // ---------- Missing Functions (Fixed) ----------
-  function now() {
-    return new Date().toISOString().slice(0, 16).replace('T', ' ');
-  }
-
-  function shortId(prefix='P') {
-    return prefix + Math.random().toString(36).slice(2, 8).toUpperCase();
-  }
-
-  async function hashDataURL(dataUrl) {
-    try {
-      const encoder = new TextEncoder();
-      const data = encoder.encode(dataUrl);
-      let hash = 0;
-      for (let i = 0; i < data.length; i++) {
-        const char = data[i];
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash;
-      }
-      return Math.abs(hash).toString(16).slice(0, 8);
-    } catch (e) {
-      return Math.random().toString(36).slice(2, 10);
-    }
-  }
-
-  // ---------- Seeding ----------
-  const seed = {
-    companies: [
-      {id:'C_IMP', name:'EU Asian Importers', type:'Importer', city:'Amsterdam'},
-      {id:'C_PRO', name:'Bangkok Chili Co., Ltd.', type:'Processor', city:'Bangkok'},
-      {id:'C_COO1', name:'NE Thai Herb Producer', type:'Coop', city:'Udon Thani'},
-      {id:'C_COO2', name:'Central Thai Organic', type:'Coop', city:'Ayutthaya'},
-    ],
-    logisticsProviders: [
-      {id:'LOG_TH1', name:'Thai Express Logistics', region:'Thailand', city:'Bangkok', specialty:'Ground Freight - Regular', services:['domestic_ground','port_transfer']},
-      {id:'LOG_TH2', name:'Bangkok Cold Chain Services', region:'Thailand', city:'Bangkok', specialty:'Ground Freight - Refrigerated', services:['refrigerated_ground','cold_storage']},
-      {id:'LOG_TH3', name:'Siam Ocean Freight Lines', region:'Thailand', city:'Laem Chabang', specialty:'Ocean Freight', services:['ocean_freight','container_shipping']},
-      {id:'LOG_TH4', name:'Mekong Transport Solutions', region:'Thailand', city:'Chiang Mai', specialty:'Ground Freight - Regular', services:['domestic_ground','rural_delivery']},
-      {id:'LOG_TH5', name:'Thai Refrigerated Express', region:'Thailand', city:'Surat Thani', specialty:'Ground Freight - Refrigerated', services:['refrigerated_ground','fresh_transport']},
-      {id:'LOG_EU1', name:'Rotterdam Port Logistics', region:'EU', city:'Rotterdam', specialty:'Ocean Freight', services:['ocean_freight','port_operations','container_handling']},
-      {id:'LOG_EU2', name:'EuroFreight Solutions', region:'EU', city:'Hamburg', specialty:'Ground Freight - Regular', services:['eu_ground','distribution','warehousing']},
-      {id:'LOG_EU3', name:'Antwerp Cold Storage Transport', region:'EU', city:'Antwerp', specialty:'Ground Freight - Refrigerated', services:['refrigerated_ground','cold_storage','eu_distribution']},
-      {id:'LOG_EU4', name:'Amsterdam Logistics Hub', region:'EU', city:'Amsterdam', specialty:'Ground Freight - Regular', services:['eu_ground','last_mile','distribution']},
-      {id:'LOG_EU5', name:'North Sea Freight Services', region:'EU', city:'Hamburg', specialty:'Ocean Freight', services:['ocean_freight','short_sea','feeder_services']},
-      {id:'LOG_EU6', name:'Rotterdam Refrigerated Transport', region:'EU', city:'Rotterdam', specialty:'Ground Freight - Refrigerated', services:['refrigerated_ground','cold_chain','eu_distribution']}
-    ],
-    users: [
-      {id:'U001', companyId:'C_IMP', email:'j.anderson@euasian.com', name:'James Anderson', role:'Procurement Manager', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:true, adminLevel:'None'},
-      {id:'U002', companyId:'C_IMP', email:'m.schmidt@euasian.com', name:'Maria Schmidt', role:'QA Manager', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:false, adminLevel:'None'},
-      {id:'U003', companyId:'C_IMP', email:'r.patel@euasian.com', name:'Raj Patel', role:'Finance/Wallet Admin', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:true, adminLevel:'None'},
-      {id:'U004', companyId:'C_IMP', email:'admin@euasian.com', name:'System Admin', role:'Sys Admin', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:true, adminLevel:'Super'},
-      {id:'U005', companyId:'C_IMP', email:'s.dupont@euasian.com', name:'Sophie Dupont', role:'Procurement Manager', status:'Suspended', lastLogin:now(), createdAt:now(), mfaEnabled:false, adminLevel:'None'},
-      {id:'U006', companyId:'C_PRO', email:'s.tanaka@bkc.co.th', name:'Satoshi Tanaka', role:'Export Manager', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:true, adminLevel:'None'},
-      {id:'U007', companyId:'C_PRO', email:'a.wong@bkc.co.th', name:'Anong Wong', role:'Quality Manager', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:true, adminLevel:'None'},
-      {id:'U008', companyId:'C_PRO', email:'c.somchai@bkc.co.th', name:'Chai Somchai', role:'Logistics Manager', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:false, adminLevel:'None'},
-      {id:'U009', companyId:'C_PRO', email:'p.chen@bkc.co.th', name:'Priya Chen', role:'Finance/Wallet Admin', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:true, adminLevel:'None'},
-      {id:'U010', companyId:'C_PRO', email:'admin@bkc.co.th', name:'Processor Admin', role:'Sys Admin', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:true, adminLevel:'Standard'},
-      {id:'U011', companyId:'C_PRO', email:'t.nguyen@bkc.co.th', name:'Tuan Nguyen', role:'Production Manager', status:'Suspended', lastLogin:now(), createdAt:now(), mfaEnabled:false, adminLevel:'None'},
-      {id:'U012', companyId:'C_COO1', email:'n.pranee@nethp.co.th', name:'Niran Pranee', role:'Sales Manager', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:false, adminLevel:'None'},
-      {id:'U013', companyId:'C_COO1', email:'k.somsak@nethp.co.th', name:'Kamala Somsak', role:'QA Liaison', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:true, adminLevel:'None'},
-      {id:'U014', companyId:'C_COO1', email:'f.bounma@nethp.co.th', name:'Fon Bounma', role:'Finance/Wallet Admin', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:false, adminLevel:'None'},
-      {id:'U015', companyId:'C_COO1', email:'admin@nethp.co.th', name:'Coop Admin', role:'Sys Admin', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:true, adminLevel:'Limited'},
-      {id:'U016', companyId:'C_COO2', email:'m.surin@cto.co.th', name:'Malee Surin', role:'Sales Manager', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:true, adminLevel:'None'},
-      {id:'U017', companyId:'C_COO2', email:'u.kanya@cto.co.th', name:'Ubon Kanya', role:'QA Liaison', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:false, adminLevel:'None'},
-      {id:'U018', companyId:'C_COO2', email:'v.chinda@cto.co.th', name:'Vimala Chinda', role:'Finance/Wallet Admin', status:'Suspended', lastLogin:now(), createdAt:now(), mfaEnabled:true, adminLevel:'None'},
-      {id:'U019', companyId:'C_COO2', email:'admin@cto.co.th', name:'Readonly Admin', role:'Sys Admin', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:true, adminLevel:'Limited'},
-      {id:'U020', companyId:'C_IMP', email:'l.admin@euasian.com', name:'Limited Admin', role:'Sys Admin', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:false, adminLevel:'Limited'},
-      {id:'U021', companyId:'C_IMP', email:'l.vanderberg@euasian.com', name:'Lars van der Berg', role:'Logistics Manager', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:true, adminLevel:'None'},
-      {id:'U022', companyId:'C_COO1', email:'w.transport@nethp.co.th', name:'Wichai Sompong', role:'Logistics Coordinator', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:false, adminLevel:'None'},
-      {id:'U023', companyId:'C_COO2', email:'s.logistics@cto.co.th', name:'Siriporn Thanakit', role:'Logistics Coordinator', status:'Active', lastLogin:now(), createdAt:now(), mfaEnabled:true, adminLevel:'None'}
-    ],
-    roles: {
-      Importer: ['Procurement Manager','QA Manager','Logistics Manager','Finance/Wallet Admin','Sys Admin'],
-      Processor: ['Export Manager','Sales/Account Manager','Production Manager','Quality Manager','Logistics Manager','Finance/Wallet Admin','Sys Admin'],
-      Coop: ['Sales Manager','QA Liaison','Logistics Coordinator','Finance/Wallet Admin','Sys Admin']
-    },
-    companyDocuments: [
-      {id:'DOC001', companyId:'C_IMP', name:'EORI Registration Certificate', category:'Regulatory', type:'EORI', fileHash:'abc123def456', uploadedBy:'U002', uploadedAt:now(), expiresAt: new Date(Date.now()+86400000*730).toISOString(), status:'Valid', tags:['EU-Required', 'Import-Essential']},
-      {id:'DOC002', companyId:'C_IMP', name:'Import License 2025', category:'Regulatory', type:'Import License', fileHash:'f7a2b3c4d5e6', uploadedBy:'U002', uploadedAt:now(), expiresAt: new Date(Date.now()+86400000*365).toISOString(), status:'Valid'},
-      {id:'DOC003', companyId:'C_IMP', name:'Cargo Insurance Policy', category:'Operational', type:'Insurance', fileHash:'g1h2i3j4k5l6', uploadedBy:'U021', uploadedAt:now(), expiresAt: new Date(Date.now()+86400000*180).toISOString(), status:'Valid'},
-      {id:'DOC004', companyId:'C_PRO', name:'GMP Certificate', category:'Quality & Safety', type:'GMP', fileHash:'m7n8o9p0q1r2', uploadedBy:'U007', uploadedAt:now(), expiresAt: new Date(Date.now()+86400000*25).toISOString(), status:'Expiring Soon'},
-      {id:'DOC005', companyId:'C_PRO', name:'HACCP Plan 2025', category:'Quality & Safety', type:'HACCP', fileHash:'s3t4u5v6w7x8', uploadedBy:'U007', uploadedAt:now(), expiresAt: new Date(Date.now()+86400000*180).toISOString(), status:'Valid'},
-      {id:'DOC006', companyId:'C_PRO', name:'Establishment Approval Cert', category:'Regulatory', type:'Establishment Approval', fileHash:'y9z0a1b2c3d4', uploadedBy:'U007', uploadedAt:now(), expiresAt: new Date(Date.now()+86400000*365).toISOString(), status:'Valid'},
-      {id:'DOC007', companyId:'C_COO1', name:'Organic Certificate', category:'Sustainability', type:'Organic', fileHash:'e5f6g7h8i9j0', uploadedBy:'U013', uploadedAt:now(), expiresAt: new Date(Date.now()+86400000*120).toISOString(), status:'Valid'},
-      {id:'DOC008', companyId:'C_COO1', name:'Global GAP Certificate', category:'Sustainability', type:'Global GAP', fileHash:'k1l2m3n4o5p6', uploadedBy:'U013', uploadedAt:now(), expiresAt: new Date(Date.now()+86400000*200).toISOString(), status:'Valid'},
-      {id:'DOC009', companyId:'C_COO2', name:'Organic Certificate', category:'Sustainability', type:'Organic', fileHash:'q7r8s9t0u1v2', uploadedBy:'U017', uploadedAt:now(), expiresAt: new Date(Date.now()-86400000*30).toISOString(), status:'Expired'}
-    ],
-    documentCategories: {
-      'Regulatory': ['EORI', 'TRACES', 'Establishment Approval', 'Import License'],
-      'Quality & Safety': ['GMP', 'HACCP', 'ISO9001', 'ISO22000'],
-      'Sustainability': ['Organic', 'FairTrade', 'Global GAP', 'Rainforest Alliance'],
-      'Operational': ['Insurance', 'Bill of Lading', 'Commercial Invoice', 'Certificate of Origin'],
-      'Product-Specific': ['Test Results', 'Specifications', 'Nutritional Analysis', 'Allergen Declaration']
-    },
-    certs: [
-      {companyId:'C_IMP', type:'EORI', expiresAt: new Date(Date.now()+86400000*365).toISOString()},
-      {companyId:'C_IMP', type:'ISO9001', expiresAt: new Date(Date.now()+86400000*180).toISOString()},
-      {companyId:'C_PRO', type:'GMP', expiresAt: new Date(Date.now()+86400000*25).toISOString()},
-      {companyId:'C_PRO', type:'HACCP', expiresAt: new Date(Date.now()+86400000*180).toISOString()},
-      {companyId:'C_COO1', type:'Organic', expiresAt: new Date(Date.now()+86400000*120).toISOString()},
-      {companyId:'C_COO1', type:'FairTrade', expiresAt: new Date(Date.now()+86400000*90).toISOString()},
-      {companyId:'C_COO2', type:'Organic', expiresAt: new Date(Date.now()-86400000*30).toISOString()},
-      {companyId:'C_COO2', type:'FairTrade', expiresAt: new Date(Date.now()+86400000*15).toISOString()}
-    ],
-    wallets: [
-      {companyId:'C_IMP', balance:3200, ledger:[{ts:now(), kind:'Received', detail:'Initial VERI allocation', amount:3200}]},
-      {companyId:'C_PRO', balance:2800, ledger:[{ts:now(), kind:'Received', detail:'Initial VERI allocation', amount:2800}]},
-      {companyId:'C_COO1', balance:1200, ledger:[{ts:now(), kind:'Received', detail:'Initial VERI allocation', amount:1200}]},
-      {companyId:'C_COO2', balance:950, ledger:[{ts:now(), kind:'Received', detail:'Initial VERI allocation', amount:950}]}
-    ],
-    invitations: [
-      {id:'I1', fromCompanyId:'C_IMP', fromRole:'Procurement Manager', toCompanyId:'C_PRO', toType:'Processor', status:'Pending', createdAt: now()},
-      {id:'I2', fromCompanyId:'C_PRO', fromRole:'Sales/Account Manager', toCompanyId:'C_COO1', toType:'Coop', status:'Accepted', createdAt: now(), decidedAt: now()},
-      {id:'I3', fromCompanyId:'C_PRO', fromRole:'Sales/Account Manager', toCompanyId:'C_COO2', toType:'Coop', status:'Pending', createdAt: now()}
-    ],
-    partners: [
-      {id:'E1', aId:'C_IMP', bId:'C_PRO', status:'Accepted', directionForA:'Supplier', source:'invitation', createdAt: now()},
-      {id:'E2', aId:'C_PRO', bId:'C_COO1', status:'Accepted', directionForA:'Supplier', source:'invitation', createdAt: now()}
-    ],
-    labels: [
-      {poId:'P2003', status:'Accepted'}, {poId:'P1005', status:'Accepted'}, {poId:'P1007', status:'Accepted'}
-    ],
-    awards: [
-      {poId:'P1009', type:'organic', amount:1000, status:'Completed', awardedAt: now()}, {poId:'P1010', type:'fairTrade', amount:800, status:'Completed', awardedAt: now()}
-    ],
-    walletAuditLog: [],
-    auditLog: [],
-    securityEvents: [],
-    pos: [
-      { id:'P1001', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Sweet Thai Chili Sauce 12x300ml', qty:1200, price:1.7}], total:2040, status:'Open', labelStatus:'Requested', rewards:{organic:1000,fairTrade:1000,rainforest:1000}, docChecklist:[{name:'GMP', state:'Expiring Soon'}], docs:[], thread:[ {author:'C_IMP:Procurement Manager', msg:'Kickoff PO for Q4', ts:now()}, {author:'C_IMP:QA Manager', msg:'Label requested: Standard labeling requirements with nutritional info', ts:now()} ], shipments:[], trace:{}, createdAt: now(), labelHistory: [ {id:'LBL_REQ001', action:'requested', actor:'C_IMP:QA Manager', timestamp:now(), version:1, requirements:'Standard labeling requirements with nutritional info'} ] },
-      { id:'P2001', buyerId:'C_PRO', supplierId:'C_COO1', currency:'THB', items:[{name:'Fresh Lemongrass (kg)', qty:500, price:42}], total:21000, status:'Open', labelStatus:'Not Required', rewards:{organic:800,fairTrade:600}, docChecklist:[{name:'Organic', state:'Valid'}], docs:[], thread:[{author:'C_PRO:Sales/Account Manager', msg:'Standard lemongrass order', ts:now()}], shipments:[], trace:{}, createdAt: now() },
-      { id:'P1002', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Tom Yum Paste 24x200g', qty:800, price:2.2}], total:1760, status:'Approved', labelStatus:'Accepted', rewards:{organic:1200,fairTrade:800}, docChecklist:[{name:'GMP', state:'Expiring Soon'}, {name:'HACCP', state:'Valid'}], docs:[], thread:[ {author:'C_IMP:Procurement Manager', msg:'Approved tom yum paste order', ts:now()}, {author:'C_PRO:Sales/Account Manager', msg:'Thanks, will prepare shipment', ts:now()}, {author:'C_IMP:QA Manager', msg:'Label requested: EU compliant labeling with allergen info', ts:now()}, {author:'C_PRO:Quality Manager', msg:'Label uploaded: Tom_Yum_Label_v2.pdf [a1b2c3d4]', ts:now()}, {author:'C_IMP:QA Manager', msg:'Label accepted: Looks good, meets EU requirements', ts:now()} ], shipments:[], trace:{}, createdAt: now(), labelHistory: [ {id:'LBL_REQ002', action:'requested', actor:'C_IMP:QA Manager', timestamp:now(), version:1, requirements:'EU compliant labeling with allergen info'}, {id:'LBL_UPL002', action:'uploaded', actor:'C_PRO:Quality Manager', timestamp:now(), version:2, fileName:'Tom_Yum_Label_v2.pdf', fileHash:'a1b2c3d4', fileSize:2048576}, {id:'LBL_ACC002', action:'accepted', actor:'C_IMP:QA Manager', timestamp:now(), version:3, comments:'Looks good, meets EU requirements'} ] },
-      { id:'P2002', buyerId:'C_PRO', supplierId:'C_COO2', currency:'THB', items:[{name:'Organic Thai Basil (kg)', qty:300, price:65}], total:19500, status:'Approved', labelStatus:'Not Required', rewards:{organic:1000,fairTrade:600}, docChecklist:[{name:'Organic', state:'Expired'}], docs:[], thread:[ {author:'C_PRO:Sales/Account Manager', msg:'Approved basil order', ts:now()}, {author:'C_COO2:Sales Manager', msg:'Will harvest fresh for you', ts:now()} ], shipments:[], trace:{}, createdAt: now() },
-      { id:'P2003', buyerId:'C_PRO', supplierId:'C_COO1', currency:'THB', items:[{name:'Fresh Thai Chilies (kg)', qty:400, price:85}], total:34000, status:'ReadyToShip', labelStatus:'Not Required', rewards:{organic:1000,fairTrade:800}, docChecklist:[{name:'Organic', state:'Valid'}, {name:'FairTrade', state:'Valid'}], docs:[], thread:[ {author:'C_PRO:Sales/Account Manager', msg:'QA completed - PASS', ts:now()}, {author:'C_COO1:Sales Manager', msg:'Ready for pickup', ts:now()} ], shipments:[{id:'S1', qty:400, ts:now()}], trace:{ lots:[ {id:'L-CHILI-001', qty:240, source:'Primary Farm'}, {id:'L-CHILI-002', qty:100, source:'Secondary Farm'}, {id:'L-CHILI-003', qty:60, source:'Tertiary Farm'} ], chain:['Primary Farm','Secondary Farm','Tertiary Farm','C_COO1','C_PRO'], geo:'15.87,100.99' }, createdAt: now() },
-      { id:'P1003', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Green Curry Paste 18x400g', qty:600, price:3.1}], total:1860, status:'Open', labelStatus:'Rejected', rewards:{organic:900,fairTrade:700}, docChecklist:[{name:'GMP', state:'Expiring Soon'}], docs:[], thread:[ {author:'C_PRO:Production Manager', msg:'Batch ready for production', ts:now()}, {author:'C_IMP:QA Manager', msg:'Label requested: Green curry paste labeling with heat level indicator', ts:now()}, {author:'C_PRO:Quality Manager', msg:'Label uploaded: Green_Curry_Label_v1.pdf [x9y8z7w6]', ts:now()}, {author:'C_IMP:QA Manager', msg:'Label rejected: Missing proper heat level warnings and ingredient allergen list format incorrect', ts:now()} ], shipments:[], trace:{}, createdAt: now(), labelHistory: [ {id:'LBL_REQ003', action:'requested', actor:'C_IMP:QA Manager', timestamp:now(), version:1, requirements:'Green curry paste labeling with heat level indicator'}, {id:'LBL_UPL003', action:'uploaded', actor:'C_PRO:Quality Manager', timestamp:now(), version:2, fileName:'Green_Curry_Label_v1.pdf', fileHash:'x9y8z7w6', fileSize:1536789}, {id:'LBL_REJ003', action:'rejected', actor:'C_IMP:QA Manager', timestamp:now(), version:3, reason:'Missing proper heat level warnings and ingredient allergen list format incorrect', requiresResubmission:true} ] },
-      { id:'P1004', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Coconut Milk 24x400ml', qty:1000, price:1.5}], total:1500, status:'Shipped', labelStatus:'Accepted', rewards:{organic:800,fairTrade:600}, docChecklist:[{name:'GMP', state:'Expiring Soon'}, {name:'HACCP', state:'Valid'}], docs:[], thread:[ {author:'C_PRO:Logistics Manager', msg:'Shipped via Bangkok Port', ts:now()}, {author:'C_IMP:Procurement Manager', msg:'Tracking received', ts:now()}, {author:'C_IMP:QA Manager', msg:'Label accepted: Perfect coconut milk labeling', ts:now()} ], shipments:[{id:'S1', qty:1000, ts:now(), carrier:'Siam Ocean Freight Lines', logisticsProvider: 'LOG_TH3', tracking:'TL2024001234'}], trace:{ lots:[ {id:'L-COCONUT-001', qty:600, source:'Southern Plantations'}, {id:'L-COCONUT-002', qty:250, source:'Central Farms'}, {id:'L-COCONUT-003', qty:150, source:'Northern Cooperatives'} ], chain:['Southern Plantations','Central Farms','Northern Cooperatives','C_PRO','C_IMP'], geo:'7.89,98.40' }, createdAt: now(), labelHistory: [ {id:'LBL_REQ004', action:'requested', actor:'C_IMP:QA Manager', timestamp:now(), version:1, requirements:'Standard coconut milk labeling'}, {id:'LBL_UPL004', action:'uploaded', actor:'C_PRO:Quality Manager', timestamp:now(), version:2, fileName:'Coconut_Milk_Label.pdf', fileHash:'c0c0nut1', fileSize:1234567}, {id:'LBL_ACC004', action:'accepted', actor:'C_IMP:QA Manager', timestamp:now(), version:3, comments:'Perfect coconut milk labeling'} ] },
-      { id:'P2004', buyerId:'C_PRO', supplierId:'C_COO2', currency:'THB', items:[{name:'Kaffir Lime Leaves (kg)', qty:150, price:120}], total:18000, status:'Shipped', labelStatus:'Not Required', rewards:{organic:600,fairTrade:400}, docChecklist:[{name:'Organic', state:'Expired'}], docs:[], thread:[{author:'C_COO2:Sales Manager', msg:'Shipped fresh lime leaves', ts:now()}], shipments:[{id:'S1', qty:150, ts:now(), carrier: 'Local Transport', logisticsProvider: 'LOG_TH4'}], trace:{ lots:[ {id:'L-LIME-001', qty:90, source:'Main Grove'}, {id:'L-LIME-002', qty:37, source:'Hill Grove'}, {id:'L-LIME-003', qty:23, source:'Valley Grove'} ], chain:['Main Grove','Hill Grove','Valley Grove','C_COO2','C_PRO'], geo:'14.22,100.88' }, createdAt: now() },
-      { id:'P1005', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Pad Thai Sauce 15x350ml', qty:900, price:2.8}], total:2520, status:'Open', labelStatus:'Pending Review', rewards:{organic:1100,fairTrade:900}, docChecklist:[{name:'GMP', state:'Expiring Soon'}], docs:[], thread:[ {author:'C_IMP:QA Manager', msg:'Label requested: Pad Thai sauce with authentic recipe indicator', ts:now()}, {author:'C_PRO:Quality Manager', msg:'Label uploaded: Pad_Thai_Sauce_Label.pdf [pt123456]', ts:now()} ], shipments:[], trace:{}, createdAt: now(), labelHistory: [ {id:'LBL_REQ005', action:'requested', actor:'C_IMP:QA Manager', timestamp:now(), version:1, requirements:'Pad Thai sauce with authentic recipe indicator'}, {id:'LBL_UPL005', action:'uploaded', actor:'C_PRO:Quality Manager', timestamp:now(), version:2, fileName:'Pad_Thai_Sauce_Label.pdf', fileHash:'pt123456', fileSize:1987654} ] },
-      { id:'P1006', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Massaman Curry Paste 20x250g', qty:500, price:2.9}], total:1450, status:'Completed', labelStatus:'Accepted', rewards:{organic:800,fairTrade:600}, docChecklist:[{name:'GMP', state:'Expiring Soon'}, {name:'HACCP', state:'Valid'}], docs:[], thread:[ {author:'C_IMP:Finance/Wallet Admin', msg:'Payment completed - thank you!', ts:now()}, {author:'C_PRO:Sales/Account Manager', msg:'Pleasure doing business', ts:now()} ], shipments:[{id:'S1', qty:500, ts:now(), received:true, receivedAt:now(), completed:true, completedAt:now()}], trace:{ lots:[ {id:'L-MASSAMAN-001', qty:300, source:'Specialty Spice Farms'}, {id:'L-MASSAMAN-002', qty:125, source:'Premium Herb Gardens'}, {id:'L-MASSAMAN-003', qty:75, source:'Artisan Producers'} ], chain:['Specialty Spice Farms','Premium Herb Gardens','Artisan Producers','C_PRO','C_IMP'], geo:'13.76,100.50' }, createdAt: now(), labelHistory: [ {id:'LBL_REQ006', action:'requested', actor:'C_IMP:QA Manager', timestamp:now(), version:1, requirements:'Massaman curry paste premium labeling'}, {id:'LBL_UPL006', action:'uploaded', actor:'C_PRO:Quality Manager', timestamp:now(), version:2, fileName:'Massaman_Label_Premium.pdf', fileHash:'mass123', fileSize:2456789}, {id:'LBL_ACC006', action:'accepted', actor:'C_IMP:QA Manager', timestamp:now(), version:3, comments:'Excellent premium labeling'} ] },
-      { id:'P1007', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Fish Sauce 12x700ml', qty:400, price:4.2}], total:1680, status:'Completed', labelStatus:'Accepted', rewards:{organic:600,fairTrade:500}, docChecklist:[{name:'GMP', state:'Expiring Soon'}], docs:[], thread:[ {author:'C_IMP:Procurement Manager', msg:'Excellent quality as always', ts:now()}, {author:'C_PRO:Quality Manager', msg:'Traditional fermentation process maintained', ts:now()} ], shipments:[{id:'S1', qty:400, ts:now(), received:true, receivedAt:now(), completed:true, completedAt:now()}], trace:{ lots:[ {id:'L-FISH-001', qty:240, source:'Coastal Fisheries'}, {id:'L-FISH-002', qty:100, source:'Island Producers'}, {id:'L-FISH-003', qty:60, source:'Artisan Fishers'} ], chain:['Coastal Fisheries','Island Producers','Artisan Fishers','C_PRO','C_IMP'], geo:'12.55,101.02' }, createdAt: now(), labelHistory: [ {id:'LBL_REQ007', action:'requested', actor:'C_IMP:QA Manager', timestamp:now(), version:1, requirements:'Traditional fish sauce labeling'}, {id:'LBL_UPL007', action:'uploaded', actor:'C_PRO:Quality Manager', timestamp:now(), version:2, fileName:'Fish_Sauce_Traditional.pdf', fileHash:'fish789', fileSize:1876543}, {id:'LBL_ACC007', action:'accepted', actor:'C_IMP:QA Manager', timestamp:now(), version:3, comments:'Perfect traditional labeling'} ] },
-      { id:'P2005', buyerId:'C_PRO', supplierId:'C_COO1', currency:'THB', items:[{name:'Fresh Galangal (kg)', qty:200, price:95}], total:19000, status:'Open', labelStatus:'Not Required', rewards:{organic:700,fairTrade:500}, docChecklist:[{name:'Organic', state:'Valid'}], docs:[], thread:[{author:'C_PRO:Sales/Account Manager', msg:'Need galangal for new product line', ts:now()}], shipments:[], trace:{}, createdAt: now() },
-      { id:'P1008', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Red Curry Paste 16x400g', qty:700, price:3.0}], total:2100, status:'Approved', labelStatus:'Accepted', rewards:{organic:1000,fairTrade:800}, docChecklist:[{name:'GMP', state:'Expiring Soon'}, {name:'HACCP', state:'Valid'}], docs:[], thread:[{author:'C_IMP:Procurement Manager', msg:'Red curry approved for production', ts:now()}], shipments:[], trace:{}, createdAt: now(), labelHistory: [ {id:'LBL_REQ008', action:'requested', actor:'C_IMP:QA Manager', timestamp:now(), version:1, requirements:'Red curry paste with heat level warnings'}, {id:'LBL_UPL008', action:'uploaded', actor:'C_PRO:Quality Manager', timestamp:now(), version:2, fileName:'Red_Curry_Label_v3.pdf', fileHash:'red456', fileSize:1654321}, {id:'LBL_ACC008', action:'accepted', actor:'C_IMP:QA Manager', timestamp:now(), version:3, comments:'Great heat level indicators'} ] }
-    ]
-  };
-
-  
-let state = load() || seed;
-
-// ---------- VeriPura Demo Augmentation V2 ----------
-function augmentDemoV2(){
-  if(state._augV2) return;
-  const ensureCompany = (id, name, type, city)=>{
-    if(!state.companies.find(c=>c.id===id)){
-      state.companies.push({id, name, type, city});
-    }
-  };
-  const ensurePartner = (aId,bId,status='Accepted',directionForA='Supplier',source='invitation')=>{
-    const a = Math.min(aId, bId);
-    const b = Math.max(aId, bId);
-    if(!state.partners.find(p=>(p.aId===a && p.bId===b))){
-      state.partners.push({id:'E'+Math.random().toString(36).slice(2,8), aId:a, bId:b, status, directionForA, source, createdAt: now()});
-    }
-  };
-  const ensurePO = (po)=>{
-    if(!state.pos.find(p=>p.id===po.id)){
-      if(!po.total && po.items && po.items.length){
-        po.total = po.items.reduce((s,it)=> s + Number(it.qty||0)*Number(it.price||0), 0);
-      }
-      po.docs = po.docs || [];
-      po.thread = po.thread || [];
-      po.shipments = po.shipments || [];
-      po.labelStatus = po.labelStatus || 'Requested';
-      po.createdAt = po.createdAt || now();
-      state.pos.push(po);
-    }
-  };
-  ensureCompany('C_PRO2','Siam Coconut Milk Ltd.','Processor','Surat Thani');
-  ensureCompany('C_PRO3','Phuket Organic Coconut Cream Co.','Processor','Phuket');
-  ensureCompany('C_PRO4','NoodleCup Foods Co., Ltd.','Processor','Ayutthaya');
-  ensureCompany('C_PRO5','OceanBlue Tuna Canners','Processor','Samut Sakhon');
-  ensureCompany('C_PRO6','Royal Bangkok Processing','Processor','Bangkok');
-  ensureCompany('C_PRO7','Thai Heritage Foods','Processor','Phuket');
-  ensureCompany('C_IMP2','EU Gourmet Imports','Importer','Rotterdam');
-  ensureCompany('C_IMP_US','US Pacific Importers','Importer','Los Angeles');
-  ensureCompany('C_IMP_CN','Shanghai Food Imports','Importer','Shanghai');
-  ensureCompany('C_SUP1','Isaan Organic Cooperative','Coop','Udon Thani');
-  ensureCompany('C_SUP2','Mekong Garlic Farmers Union','Coop','Chiang Rai');
-  ensureCompany('C_SUP4','Chiang Mai Lemongrass Collective','Coop','Chiang Mai');
-  
-  ['C_PRO2','C_PRO3','C_PRO4','C_PRO5','C_PRO6','C_PRO7'].forEach(pid=> ensurePartner('C_IMP', pid, 'Accepted','Supplier','invitation'));
-  ['C_IMP2','C_IMP_US','C_IMP_CN'].forEach(iid=> ensurePartner('C_PRO', iid, 'Accepted','Customer','invitation'));
-  ['C_SUP1','C_SUP2','C_SUP4'].forEach(sid=> ensurePartner('C_PRO', sid, 'Accepted','Supplier','invitation'));
-  const importerPOs = [
-    {id:'P1101', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Sweet Chili Sauce 24x200ml', qty:800, price:1.2}], status:'Open', thread:[{author:'C_IMP:Procurement Manager', msg:'Kickoff — confirm delivery window', ts:now()}]},
-    {id:'P1102', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Green Curry Paste 24x200g', qty:600, price:1.5}], status:'Open', thread:[{author:'C_PRO:Export Manager', msg:'Pricing ack; label pending', ts:now()}]},
-    {id:'P1103', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Panang Curry Paste 12x300g', qty:500, price:1.9}], status:'Approved', labelStatus:'Accepted', thread:[{author:'C_IMP:Compliance Manager', msg:'Label accepted', ts:now()}]},
-    {id:'P1104', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Sriracha 12x500ml', qty:700, price:1.8}], status:'Approved', labelStatus:'Accepted', thread:[{author:'C_PRO:Export Manager', msg:'Preparing shipment', ts:now()}]},
-    {id:'P1105', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Tom Yum Paste 24x200g', qty:900, price:1.4}], status:'ReadyToShip', labelStatus:'Accepted', shipments:[{id:'S1', qty:300, ts:now()}], thread:[{author:'C_PRO:Logistics Manager', msg:'First partial shipment created', ts:now()}]},
-    {id:'P1106', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Sweet Basil Leaves (jar)', qty:450, price:2.1}], status:'Shipped', labelStatus:'Accepted', shipments:[{id:'S1', qty:450, ts:now()}], thread:[{author:'C_PRO:Logistics Manager', msg:'Shipped today via Maersk', ts:now()}]},
-    {id:'P1107', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Coconut Milk 24x400ml', qty:1200, price:0.95}], status:'Open', labelStatus:'Requested', thread:[{author:'C_IMP:Compliance Manager', msg:'Please upload coconut label v1', ts:now()}]},
-    {id:'P1108', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Chili Oil 12x250ml', qty:400, price:2.2}], status:'Open', labelStatus:'Requested', thread:[{author:'C_PRO:Export Manager', msg:'Will share label draft', ts:now()}]},
-    {id:'P1109', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Pad Thai Sauce 12x500ml', qty:500, price:2.0}], status:'Approved', labelStatus:'Accepted', thread:[{author:'C_IMP:Procurement Manager', msg:'Approved — proceed to ship', ts:now()}]},
-    {id:'P1110', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Yellow Curry Paste 20x250g', qty:650, price:1.6}], status:'ReadyToShip', labelStatus:'Accepted', shipments:[{id:'S1', qty:200, ts:now()}], thread:[{author:'C_PRO:Production Manager', msg:'Batch staged', ts:now()}]},
-    {id:'P1111', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Fish Sauce 24x300ml', qty:1000, price:0.8}], status:'Shipped', labelStatus:'Accepted', shipments:[{id:'S1', qty:1000, ts:now()}], thread:[{author:'C_PRO:Logistics Manager', msg:'Container sealed', ts:now()}]},
-    {id:'P1112', buyerId:'C_IMP', supplierId:'C_PRO', currency:'EUR', items:[{name:'Tamarind Paste 12x500g', qty:300, price:2.5}], status:'Completed', labelStatus:'Accepted', shipments:[{id:'S1', qty:300, ts:now(), received:true, receivedAt:now(), completed:true, completedAt:now()}], thread:[{author:'C_IMP:Logistics Manager', msg:'Received in warehouse', ts:now()}]},
-  ];
-  importerPOs.forEach(ensurePO);
-
-  const supplierItems = [
-    ['Fresh Red Chili (kg)',120,70], ['Dried Chili (kg)',90,85], ['Garlic (kg)',200,40], ['Lemongrass (kg)',180,35], ['Kaffir Lime Leaves (kg)',160,120], ['Galangal (kg)',150,55],
-  ];
-  ['C_COO1','C_COO2'].forEach((sid, idx)=>{
-    for(let n=1;n<=6;n++){
-      const [name, qty, price] = supplierItems[(n-1)%supplierItems.length];
-      const poId = (sid==='C_COO1' ? 'P210' : 'P220') + n;
-      const th = [];
-      if(n<=4){ th.push({author: sid+':Sales Manager', msg:'Quote ready / available qty confirmed', ts: now()}); }
-      ensurePO({ id: poId, buyerId:'C_PRO', supplierId:sid, currency:'THB', items:[{name, qty, price}], status: (n%3===0?'Approved': (n%2===0?'Open':'ReadyToShip')), labelStatus: (n%2===0?'Requested':'Not Required'), rewards:{organic:600,fairTrade:400}, docs:[], thread: th });
-    }
-  });
-
-  state._augV2 = true;
-  save();
-}
-augmentDemoV2();
-// ---------- End Augmentation ----------
-
-
-  // ---------- Relationship policy ----------
-  function companyById(id){ return state.companies.find(c=>c.id===id); }
-  function userById(id){ return (state.users || []).find(u=>u.id===id); }
-  function typeOf(id){ const c = companyById(id); return c?c.type:null; }
-  
-  function allowedCounterpartiesFor(companyId){
-    const t = typeOf(companyId);
-    const others = state.companies.filter(c=>c.id!==companyId);
-    if(t==='Importer') return others.filter(c=>c.type==='Processor');
-    if(t==='Processor') return others.filter(c=>c.type==='Importer' || c.type==='Coop');
-    if(t==='Coop') return others.filter(c=>c.type==='Processor');
-    return [];
-  }
-  function isAllowedPair(aId, bId){
-    const at = typeOf(aId), bt = typeOf(bId);
-    if(at==='Importer' && bt==='Processor') return true;
-    if(at==='Processor' && (bt==='Importer' || bt==='Coop')) return true;
-    if(at==='Coop' && bt==='Processor') return true;
-    return false;
-  }
-
-  function getAvailableLogisticsProviders(companyId, shipmentType = 'all') {
-    const myType = typeOf(companyId);
-    if (myType === 'Importer') {
-      return state.logisticsProviders || [];
-    } else if (myType === 'Processor') {
-      return (state.logisticsProviders || []).filter(p => p.region === 'Thailand');
-    } else if (myType === 'Coop') {
-      return (state.logisticsProviders || []).filter(p => p.region === 'Thailand');
-    }
-    return [];
-  }
-  function renderLogisticsProviderDropdown(companyId, selectId = 'logisticsProvider') {
-    const providers = getAvailableLogisticsProviders(companyId);
-    const options = providers.map(p => 
-      `<option value="${p.id}">${escapeHTML(p.name)} - ${escapeHTML(p.specialty)} (${escapeHTML(p.city)})</option>`
-    ).join('');
-    return `<select id="${selectId}" class="input">${options}</select>`;
-  }
-
-  // ---------- Current user session ----------
-  let session = { companyId:null, role:null, userId:null };
-  const app = document.getElementById('app');
-
-  function getCurrentUser(){
-    if(!session.userId) return null;
-    return userById(session.userId);
-  }
-  
-  function getAdminLevel(){
-    const u = getCurrentUser();
-    return u ? u.adminLevel : 'None';
-  }
-  
-  function isAtLeast(level){
-    const myLevel = getAdminLevel();
-    const levels = { 'None':0, 'Limited':1, 'Standard':2, 'Super':3 };
-    return (levels[myLevel] || 0) >= (levels[level] || 0);
-  }
-
-  function addAuditLog(action, details={}){
-    const user = getCurrentUser();
-    state.auditLog.push({
-      ts: now(),
-      actor: user ? `${user.name} (${user.role})` : 'System',
-      actorId: user ? user.id : null,
-      company: session.companyId,
-      action: action,
-      ...details
-    });
-  }
-
-  function renderLogin(){
-    app.innerHTML = `
-      <div style="max-width:980px;margin:6vh auto;padding:1rem">
-        <div class="grid cols-2">
-          <div class="card" style="grid-column:1 / span 1">
-            <div class="brand" style="font-size:1.35rem">VeriPura <small>EU-ASEAN Traceability Demo</small></div>
-            <div class="divider"></div>
-            <div class="col">
-              <label class="label">Company</label>
-              <select id="loginCompany"></select>
-              <label class="label">User</label>
-              <select id="loginUser"></select>
-              <label class="label">Password <span class="muted small">(use "123" for all accounts)</span></label>
-              <input id="loginPwd" class="input" type="password" placeholder="Enter: 123" />
-              <div class="row">
-                <button id="loginBtn" class="btn btn-brand">Sign in</button>
-                <button id="seedReset" class="btn">Reset demo data</button>
-              </div>
+                <!-- Country (for currency/rate) -->
+                <select id="countrySelect" onchange="window.calculateSavings()">
+                    <option value="DE">Germany (€)</option>
+                    <option value="FR">France (€)</option>
+                    <option value="NL">Netherlands (€)</option>
+                    <option value="GB">United Kingdom (£)</option>
+                    <option value="CH">Switzerland (CHF)</option>
+                </select>
             </div>
-          </div>
-          <div class="card" style="grid-column:2 / span 1">
-            <div class="section-title">Quick tips</div>
-            <ul class="small">
-              <li>Login has been updated to select a specific user per company.</li>
-              <li>Users with the 'Sys Admin' role will see a new enhanced administration tab.</li>
-              <li>Some users are 'Suspended' and cannot log in.</li>
-              <li>PO Approve/Shipment requires <span class="pill">Label: Accepted</span> or Override + Note (audited).</li>
-              <li>Traceability appears for ReadyToShip / Shipped / Received / Completed.</li>
-              <li>Wallet actions are gated to the 'Finance/Wallet Admin' role.</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    `;
-    const companySel = $('#loginCompany');
-    state.companies.forEach(c=>{
-      const o = document.createElement('option'); o.value=c.id; o.textContent = `${c.name} — ${c.type}`; companySel.appendChild(o);
-    });
-    function populateUsers(){
-      const companyId = companySel.value;
-      const users = (state.users || []).filter(u=>u.companyId === companyId);
-      const userSel = $('#loginUser'); userSel.innerHTML='';
-      users.forEach(u=>{ const o=document.createElement('option'); o.value=u.id; o.textContent=`${u.name} (${u.role})`; userSel.appendChild(o); });
-    }
-    companySel.addEventListener('change', populateUsers);
-    populateUsers();
-
-    $('#loginBtn').addEventListener('click', ()=>{
-      const userId = $('#loginUser').value;
-      const password = $('#loginPwd').value;
-      const user = userById(userId);
-
-      if(!user){
-        toast('User not found.','err'); return;
-      }
-      if(password !== '123'){
-        toast('Invalid password. Use "123" for all accounts.', 'err');
-        state.securityEvents.push({ts:now(), type:'failed_login', reason:'wrong_password', userId:user.id, email:user.email});
-        save();
-        return;
-      }
-      if(user.status === 'Suspended'){
-        toast('This account is suspended. Please contact an administrator.', 'err');
-        state.securityEvents.push({ts:now(), type:'failed_login', reason:'suspended', userId:user.id, email:user.email});
-        save();
-        return;
-      }
-      
-      session.companyId = user.companyId;
-      session.role = user.role;
-      session.userId = user.id;
-      user.lastLogin = now();
-      saveSession();
-      save(); 
-      renderApp();
-    });
-    $('#seedReset').addEventListener('click', ()=>{
-      localStorage.removeItem('vp'); 
-      state = deepClone(seed);
-      save(); 
-      toast('Demo data reset.');
-      location.reload();
-    });
-  }
-  
-  function ensureSessionCompany(){
-    const me = companyById(session.companyId);
-    if(!me || !getCurrentUser()){
-      console.warn('Invalid session; resetting');
-      session = {companyId:null, role:null, userId:null};
-      saveSession();
-      renderLogin();
-      return null;
-    }
-    return me;
-  }
-
-  function saveSession(){ localStorage.setItem('vp_session', JSON.stringify(session)); }
-  function loadSession(){ try{ const s=JSON.parse(localStorage.getItem('vp_session')); if(s&&s.companyId&&s.role&&s.userId){session=s;} }catch(e){} }
-
-  
-  const MAX_FILE_SIZE = 5 * 1024 * 1024;
-  let isProcessing = false;
-
-  async function processPDFForPO(file, po){
-    if(!file) return toast('Select a PDF first.','warn');
-    if(file.size > MAX_FILE_SIZE){ return toast('File too large (max 5MB)','err'); }
-    if(isProcessing){ return toast('Please wait for current operation to complete','warn'); }
-    isProcessing = true;
-    try{
-      const reader = new FileReader();
-      return await new Promise((resolve,reject)=>{
-        reader.onerror = ()=>{ reject(new Error('File read failed')); };
-        reader.onload = async (e)=>{
-          try{
-            const dataUrl = e.target.result;
-            const hash = await hashDataURL(dataUrl);
-            po.docs = po.docs || [];
-            po.docs.push({name:file.name, dataUrl, hash});
-            po.thread.push({author: session.companyId+':'+session.role, msg:`Attached PDF ${escapeHTML(file.name)} [hash ${hash}]`, ts: now()});
-            resolve(true);
-          }catch(err){ reject(err); }
-        };
-        reader.readAsDataURL(file);
-      });
-    }catch(err){
-      console.error('File processing error', err);
-      toast('File processing failed','err');
-      return false;
-    } finally {
-      isProcessing = false;
-    }
-  }
-
-  function updateState(updateFn){
-    try{ updateFn(); save(); return true; }
-    catch(err){ console.error('State update failed:', err); toast('Operation failed','err'); return false; }
-  }
-
-  function renderApp(){
-    const me = companyById(session.companyId);
-    if(!me) return renderLogin();
-    const currentUser = getCurrentUser();
-    if (!currentUser) return renderLogin();
-    const showAdminTab = session.role === 'Sys Admin';
-
-    app.innerHTML = `
-      <div class="layout">
-        <aside class="sidebar">
-          <div class="brand">VeriPura <small>${escapeHTML(me.name)}</small></div>
-          <div class="divider"></div>
-          <div class="col" style="gap:.5rem">
-            <span class="chip">User: ${escapeHTML(currentUser.name)}</span>
-            <span class="chip">Role: ${escapeHTML(session.role)}</span>
-            <span class="chip" id="walletChip">VERI: ${getBalance(me.id)}</span>
-          </div>
-          <div class="divider"></div>
-          <div class="nav" id="nav">
-            <button data-tab="dashboard" class="active">Dashboard</button>
-            <button data-tab="pos">Purchase Orders</button>
-            <button data-tab="documents">Documents</button>
-            <button data-tab="wallet">Wallet</button>
-            <button data-tab="partners" class="${(session.role==='Logistics Manager'||session.role==='Logistics Coordinator')?'hidden':''}">Business Partners</button>
-            <button data-tab="invitations" class="${canSeeInvitations()? '' : 'hidden'}">Invitations</button>
-            <button data-tab="sysadmin" class="${showAdminTab ? '' : 'hidden'}">Sys Admin</button>
-            <button id="logout" class="btn" style="margin-top:.5rem">Log out</button>
-          </div>
-        </aside>
-        <main>
-          <section id="tab-dashboard"></section>
-          <section id="tab-pos" class="hidden"></section>
-          <section id="tab-documents" class="hidden"></section>
-          <section id="tab-wallet" class="hidden"></section>
-          <section id="tab-partners" class="hidden"></section>
-          <section id="tab-invitations" class="hidden"></section>
-          <section id="tab-sysadmin" class="hidden"></section>
-        </main>
-      </div>
-      <div id="modal" class="hidden"></div>
-    `;
-    $('#logout').addEventListener('click', ()=>{ localStorage.removeItem('vp_session'); session={companyId:null,role:null,userId:null}; renderLogin(); });
-    $$('#nav button[data-tab]').forEach(btn=>{
-      btn.addEventListener('click', (e)=>{
-        $$('#nav button').forEach(b=>b.classList.remove('active'));
-        e.currentTarget.classList.add('active');
-        const tab = e.currentTarget.dataset.tab;
-        ['dashboard','pos','documents','wallet','partners','invitations','sysadmin'].forEach(t=>{
-          const el = document.getElementById('tab-'+t);
-          if(el) el.classList.toggle('hidden', t!==tab);
-        });
-        if(tab==='dashboard') renderDashboard();
-        if(tab==='pos') renderPOs();
-        if(tab==='documents') renderDocuments();
-        if(tab==='wallet') renderWallet();
-        if(tab==='partners') renderPartners();
-        if(tab==='invitations') renderInvitations();
-        if(tab==='sysadmin') renderSysAdmin();
-      });
-    });
-    renderDashboard();
-  }
-
-  function renderDashboard(){
-    const me = companyById(session.companyId);
-    const myPOs = state.pos.filter(p=>p.buyerId===me.id || p.supplierId===me.id);
-    const open = myPOs.filter(p=>p.status==='Open').length;
-    const rts = myPOs.filter(p=>p.status==='ReadyToShip').length;
-    const shipped = myPOs.filter(p=>p.status==='Shipped').length;
-    const received = myPOs.filter(p=>p.status==='Received').length;
-    const completed = myPOs.filter(p=>p.status==='Completed').length;
-    const _me_guard = ensureSessionCompany(); if(!_me_guard) return; $('#tab-dashboard').innerHTML = `
-      <div class="grid cols-3">
-        <div class="card metric"><div class="h">Open POs</div><div class="v">${open}</div></div>
-        <div class="card metric"><div class="h">Ready to Ship</div><div class="v">${rts}</div></div>
-        <div class="card metric"><div class="h">Shipped / Received / Completed</div>
-          <div class="v">${shipped} / ${received} / ${completed}</div>
-        </div>
-      </div>
-      <div class="grid cols-2" style="margin-top:1rem">
-        <div class="card">
-          <div class="row-between"><div class="section-title">Recent Activity</div></div>
-          <div id="dash-activity" class="small muted">Actions you take (PO approvals, shipments, wallet ops) will appear here.</div>
-        </div>
-        <div class="card">
-          <div class="section-title">Your Company</div>
-          <div class="row" style="flex-wrap:wrap">
-            <span class="chip">Type: ${escapeHTML(me.type)}</span>
-            <span class="chip">City: ${escapeHTML(me.city||'-')}</span>
-            <span class="chip">Balance: <strong id="dashBalance">${getBalance(me.id)}</strong> VERI</span>
-          </div>
-          <div class="divider"></div>
-          <div class="small muted">Invitations visible to operational roles only; Business Partners excludes yourself. Wallet transfers mirror PO relationship policy.</div>
-        </div>
-      </div>
-    `;
-  }
-
-  function directionFor(viewerId, otherId){
-    const vt = typeOf(viewerId), ot = typeOf(otherId);
-    if(vt==='Importer' && ot==='Processor') return 'Supplier';
-    if(vt==='Processor' && ot==='Importer') return 'Customer';
-    if(vt==='Processor' && ot==='Coop') return 'Supplier';
-    if(vt==='Coop' && ot==='Processor') return 'Customer';
-    return '—';
-    }
-  function partnerStatus(aId, bId){
-    const edge = state.partners.find(e => (e.aId===aId && e.bId===bId) || (e.aId===bId && e.bId===aId));
-    return edge? edge.status : 'Prospect';
-  }
-  function canInviteFromRole(){
-    const meType = typeOf(session.companyId);
-    const r = session.role;
-    if(meType==='Importer') return r==='Procurement Manager';
-    if(meType==='Processor') return r==='Export Manager' || r==='Sales/Account Manager';
-    if(meType==='Coop') return r==='Sales Manager';
-    return false;
-  }
-  function canSeeInvitations(){
-    const r = session.role;
-    if(r === 'Logistics Manager' || r === 'Logistics Coordinator') return false;
-    return canInviteFromRole();
-  }
-  
-  function wirePartnerDelegatedHandlers(){
-    const container = document.getElementById('tab-partners');
-    if(!container || container.dataset.wired==='1') return;
-    container.dataset.wired='1';
-    container.addEventListener('click',(ev)=>{
-      const btn = ev.target.closest('button');
-      if(!btn) return;
-      if(btn.classList.contains('btn-invite')){
-        const targetId = btn.dataset.id;
-        if(!isAllowedPair(session.companyId,targetId)){ toast('Not a permitted relationship.','err'); return; }
-        if(!canInviteFromRole()){ toast('Your role cannot send invitations.','err'); return; }
-        const inv = {id:'I'+Math.random().toString(36).slice(2,8), fromCompanyId:session.companyId, toCompanyId:targetId, fromType:typeOf(session.companyId), toType:typeOf(targetId), status:'Pending', createdAt: now()};
-        state.invitations.push(inv); save(); toast('Invitation sent.');
-        renderPartners();
-      }
-    });
-  }
-
-  function renderPartners(){
-    wirePartnerDelegatedHandlers();
-    const me = companyById(session.companyId);
-    const others = state.companies.filter(c=>c.id!==me.id);
-    const rows = others.map(o=>{
-      const dir = directionFor(me.id, o.id);
-      const stat = partnerStatus(me.id, o.id);
-      const canInvite = canInviteFromRole() && isAllowedPair(me.id, o.id);
-      const inviteBtn = canInvite ? `<button class="btn btn-primary btn-invite" data-id="${o.id}">Invite</button>` : `<span class="muted small">${isAllowedPair(me.id,o.id)?'No action':'Not permitted'}</span>`;
-      return `<tr>
-        <td>${escapeHTML(o.name)}</td>
-        <td>${escapeHTML(o.type)}</td>
-        <td><span class="tag">${dir}</span></td>
-        <td><span class="tag ${stat==='Accepted'?'ok':stat==='Prospect'?'':'warn'}">${stat}</span></td>
-        <td>${inviteBtn}</td>
-      </tr>`;
-    }).join('');
-    $('#tab-partners').innerHTML = `
-      <div class="row-between">
-        <div class="section-title">Business Partners</div>
-        <label class="small"><input type="checkbox" id="onlyAccepted" /> Show "My Partners" (Accepted)</label>
-      </div>
-      <div class="card">
-        <table class="table" id="partnersTable">
-          <thead><tr><th>Company</th><th>Type</th><th>Direction</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    `;
-    $('#onlyAccepted').addEventListener('change', (e)=>{
-      const only = e.target.checked;
-      const me = companyById(session.companyId);
-      $$('#partnersTable tbody tr').forEach(tr=>{
-        const name = tr.children[0].textContent;
-        const other = state.companies.find(c=>c.name===name);
-        const stat = partnerStatus(me.id, other.id);
-        tr.style.display = (!only || stat==='Accepted') ? '' : 'none';
-      });
-    });
-    $$('#partnersTable .btn-invite').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const targetId = btn.dataset.id;
-        if(!isAllowedPair(session.companyId,targetId)){ toast('Not a permitted relationship.','err'); return; }
-        if(!canInviteFromRole()){ toast('Your role cannot send invitations.','err'); return; }
-        const inv = {id: 'I'+Math.random().toString(36).slice(2,8), fromCompanyId:session.companyId, fromRole:session.role, toCompanyId:targetId, toType:typeOf(targetId), status:'Pending', createdAt:now()};
-        state.invitations.push(inv); save(); toast('Invitation sent.');
-        renderPartners();
-      });
-    });
-  }
-  
-  function wireInvitationDelegatedHandlers(){
-    const container = document.getElementById('tab-invitations');
-    if(!container || container.dataset.wired==='1') return;
-    container.dataset.wired='1';
-    container.addEventListener('click',(ev)=>{
-      const btn = ev.target.closest('button');
-      if(!btn) return;
-      const id = btn.dataset.id;
-      if(btn.id==='sendInvite'){
-        const toId = ($('#invTarget')||{}).value;
-        if(!toId) return toast('Choose a target company.','warn');
-        if(!isAllowedPair(session.companyId,toId)){ return toast('Not a permitted relationship.','err'); }
-        if(!canInviteFromRole()){ return toast('Your role cannot send invitations.','err'); }
-        const inv = {id:'I'+Math.random().toString(36).slice(2,8), fromCompanyId:session.companyId, toCompanyId:toId, fromType:typeOf(session.companyId), toType:typeOf(toId), status:'Pending', createdAt:now()};
-        state.invitations.push(inv); save(); toast('Invitation sent.'); renderInvitations(); renderPartners();
-        return;
-      }
-      if(btn.classList.contains('btn-accept')){
-        const inv = state.invitations.find(i=>i.id===id); if(!inv) return;
-        inv.status='Accepted'; inv.decidedAt=now();
-        const existing = state.partners.find(e=>(e.aId===inv.fromCompanyId && e.bId===inv.toCompanyId) || (e.aId===inv.toCompanyId && e.bId===inv.fromCompanyId));
-        if(existing){ existing.status='Accepted'; } else { state.partners.push({id:'E'+Math.random().toString(36).slice(2,8), aId:Math.min(inv.fromCompanyId, inv.toCompanyId), bId:Math.max(inv.fromCompanyId, inv.toCompanyId), status:'Accepted', source:'invitation', createdAt: now()}); }
-        save(); toast('Invitation accepted.'); renderInvitations(); renderPartners();
-        return;
-      }
-      if(btn.classList.contains('btn-decline')){
-        const inv = state.invitations.find(i=>i.id===id); if(!inv) return;
-        inv.status='Declined'; inv.decidedAt=now(); save(); toast('Invitation declined.'); renderInvitations();
-      }
-    });
-  }
-
-  function renderInvitations(){
-    wireInvitationDelegatedHandlers();
-    if(!canSeeInvitations()){
-      $('#tab-invitations').innerHTML = `<div class="card">Invitations are not available for your role.</div>`; return;
-    }
-    const me = companyById(session.companyId);
-    const allowedTargets = allowedCounterpartiesFor(me.id);
-    const options = allowedTargets.map(c=>`<option value="${c.id}">${escapeHTML(c.name)} — ${c.type}</option>`).join('');
-    const sent = state.invitations.filter(i=>i.fromCompanyId===me.id);
-    const received = state.invitations.filter(i=>i.toCompanyId===me.id);
-    function inviteRow(i,isSent){
-      const from = companyById(i.fromCompanyId), to = companyById(i.toCompanyId);
-      const statusTag = `<span class="tag ${i.status==='Accepted'?'ok':i.status==='Pending'?'warn':'block'}">${i.status}</span>`;
-      const actions = isSent
-        ? (i.status==='Pending'? `<button class="btn btn-warn btn-cancel" data-id="${i.id}">Cancel</button>` : '—')
-        : (i.status==='Pending'? `<button class="btn btn-brand btn-accept" data-id="${i.id}">Accept</button> <button class="btn btn-danger btn-decline" data-id="${i.id}">Decline</button>` : '—');
-      return `<tr><td>${escapeHTML(from.name)} (${escapeHTML(i.fromRole)})</td><td>→</td><td>${escapeHTML(to.name)} (${escapeHTML(i.toType)})</td><td>${statusTag}</td><td>${actions}</td></tr>`;
-    }
-    $('#tab-invitations').innerHTML = `
-      <div class="section-title">Invitations</div>
-      <div class="card">
-        <div class="row" style="flex-wrap:wrap;gap:.5rem 1rem">
-          <div class="col"><label class="label">To Company</label><select id="invTarget">${options}</select></div>
-          <div class="col"><label class="label">Target Type</label><input class="input" id="invType" class="input" value="${escapeHTML((allowedTargets && allowedTargets.length ? allowedTargets[0].type : ''))}" readonly /></div>
-          <div class="col"><label class="label">From Role</label><input class="input" value="${escapeHTML(session.role)}" readonly /></div>
-          <div class="col" style="align-self:end"><button id="sendInvite" class="btn btn-primary">Send Invitation</button></div>
-        </div>
-      </div>
-      <div class="grid cols-2" style="margin-top:1rem">
-        <div class="card">
-          <div class="section-title">Received</div>
-          <table class="table" id="invReceived"><tbody>${
-            received.map(i=>inviteRow(i,false)).join('')||'<tr><td class="muted">— None —</td></tr>'
-          }</tbody></table>
-        </div>
-        <div class="card">
-          <div class="section-title">Sent</div>
-          <table class="table" id="invSent"><tbody>${
-            sent.map(i=>inviteRow(i,true)).join('')||'<tr><td class="muted">— None —</td></tr>'
-          }</tbody></table>
-        </div>
-      </div>
-    `;
-    $('#invTarget').addEventListener('change', (e)=>{
-      const t = companyById(e.target.value); $('#invType').value = t ? t.type : '';
-    });
-    $('#sendInvite').addEventListener('click', ()=>{
-      const toId = $('#invTarget').value;
-      if(!isAllowedPair(session.companyId, toId)){ toast('Not a permitted relationship.','err'); return; }
-      if(!canInviteFromRole()){ toast('Your role cannot send invitations.','err'); }
-      const inv = {id:'I'+Math.random().toString(36).slice(2,8), fromCompanyId:session.companyId, fromRole:session.role, toCompanyId:toId, toType:typeOf(toId), status:'Pending', createdAt:now()};
-      state.invitations.push(inv); save(); toast('Invitation sent.'); renderInvitations();
-    });
-    $$('#invReceived .btn-accept').forEach(b=>b.addEventListener('click',()=>{
-      const id = b.dataset.id; const inv = state.invitations.find(i=>i.id===id); if(!inv) return;
-      inv.status='Accepted'; inv.decidedAt=now();
-      const existing = state.partners.find(e=>(e.aId===inv.fromCompanyId && e.bId===inv.toCompanyId) || (e.aId===inv.toCompanyId && e.bId===inv.fromCompanyId));
-      if(existing){ existing.status='Accepted'; }
-      else{
-        state.partners.push({id:'E'+Math.random().toString(36).slice(2,8), aId:inv.fromCompanyId, bId:inv.toCompanyId, status:'Accepted', directionForA: directionFor(inv.fromCompanyId, inv.toCompanyId), source:'invitation', createdAt: now()});
-      }
-      save(); toast('Invitation accepted.'); renderInvitations(); renderPartners();
-    }));
-    $$('#invReceived .btn-decline').forEach(b=>b.addEventListener('click',()=>{
-      const id=b.dataset.id; const inv = state.invitations.find(i=>i.id===id); if(!inv) return;
-      inv.status='Declined'; inv.decidedAt=now(); save(); toast('Invitation declined.','warn'); renderInvitations();
-    }));
-    $$('#invSent .btn-cancel').forEach(b=>b.addEventListener('click',()=>{
-      const id=b.dataset.id; const inv=state.invitations.find(i=>i.id===id); if(!inv) return;
-      if(inv.status!=='Pending'){ toast('Only pending invites can be cancelled.','warn'); return; }
-      inv.status='Cancelled'; inv.decidedAt=now(); save(); toast('Invitation cancelled.'); renderInvitations();
-    }));
-  }
-
-  function walletFor(companyId){
-    let w = state.wallets.find(w=>w.companyId===companyId);
-    if(!w){ w={companyId, balance:0, ledger:[]}; state.wallets.push(w); }
-    return w;
-  }
-  function getBalance(companyId){ return walletFor(companyId).balance.toFixed(2); }
-  function updateWalletChip(){
-    $('#walletChip').textContent = 'VERI: ' + getBalance(session.companyId);
-    const db = $('#dashBalance'); if(db) db.textContent = getBalance(session.companyId);
-  }
-  function canWalletAdmin(){ return session.role==='Finance/Wallet Admin'; }
-  function renderWallet(){
-    const me = companyById(session.companyId);
-    const w = walletFor(me.id);
-    const allowed = allowedCounterpartiesFor(me.id);
-    const cpOpts = allowed.map(c=>`<option value="${c.id}">${escapeHTML(c.name)} — ${c.type}</option>`).join('');
-    const readOnly = !canWalletAdmin();
-    $('#tab-wallet').innerHTML = `
-      <div class="row-between">
-        <div class="section-title">Wallet</div>
-        <div class="chip">Balance: <strong>${getBalance(me.id)}</strong> VERI</div>
-      </div>
-      <div class="grid cols-3">
-        <div class="card">
-          <div class="section-title">Buy VERI</div>
-          <div class="col">
-            <label class="label">Amount (fiat → VERI 1:1)</label>
-            <input id="buyAmt" class="input" type="number" step="0.01" min="0" ${readOnly?'disabled':''} />
-            <button id="buyBtn" class="btn btn-brand" ${readOnly?'disabled':''}>Buy</button>
-          </div>
-        </div>
-        <div class="card">
-          <div class="section-title">Send VERI</div>
-          <div class="col">
-            <label class="label">Counterparty</label>
-            <select id="sendTo" ${readOnly?'disabled':''}>${cpOpts}</select>
-            <label class="label">Amount</label>
-            <input id="sendAmt" class="input" type="number" step="0.01" min="0" ${readOnly?'disabled':''} />
-            <label class="label">PO (optional)</label>
-            <input id="sendPO" class="input" placeholder="PO ID" ${readOnly?'disabled':''} />
-            <button id="sendBtn" class="btn btn-primary" ${readOnly?'disabled':''}>Send</button>
-          </div>
-        </div>
-        <div class="card">
-          <div class="section-title">Purchase Services / Discounts</div>
-          <div class="col">
-            <select id="svcItem" ${readOnly?'disabled':''}>
-              <option value="QA bundle|250">QA bundle — 250</option>
-              <option value="Compliance verification|180">Compliance verification — 180</option>
-              <option value="Label review|120">Label review — 120</option>
-              <option value="5% discount|100">5% discount — 100</option>
-            </select>
-            <label class="label">PO (optional)</label>
-            <input id="svcPO" class="input" placeholder="PO ID" ${readOnly?'disabled':''} />
-            <button id="svcBuy" class="btn" ${readOnly?'disabled':''}>Purchase</button>
-          </div>
-        </div>
-      </div>
-      <div class="card" style="margin-top:1rem">
-        <div class="section-title">Ledger</div>
-        <table class="table">
-          <thead><tr><th>When</th><th>Type</th><th>Detail</th><th>Amount</th></tr></thead>
-          <tbody id="ledgerBody">
-            ${w.ledger.slice().reverse().map(l=>`<tr><td class="small muted">${l.ts}</td><td>${l.kind}</td><td>${escapeHTML(l.detail||'')}</td><td class="${l.amount>=0?'oktext':'danger'}">${l.amount>=0?'+':''}${l.amount.toFixed(2)}</td></tr>`).join('') || '<tr><td class="muted">— No entries —</td></tr>'}
-          </tbody>
-        </table>
-      </div>
-      <div class="small muted ${readOnly?'':'hidden'}" style="margin-top:.5rem">Read-only: only Finance/Wallet Admins can buy/send/purchase.</div>
-    `;
-    if(canWalletAdmin()){
-      $('#buyBtn').addEventListener('click', ()=>{
-        const amt = parseFloat($('#buyAmt').value||'0'); if(!(amt>0)) return toast('Enter a positive amount.','warn');
-        w.balance += amt; w.ledger.push({ts:now(), kind:'Received', detail:'VERI purchase (fiat)', amount:+amt});
-        state.walletAuditLog.push({ts:now(), actor:session.role, company:session.companyId, action:'buy', amount:amt});
-        save(); updateWalletChip(); renderWallet(); toast('Top-up complete.');
-      });
-      $('#sendBtn').addEventListener('click', ()=>{
-        const toId = $('#sendTo').value;
-        if(!isAllowedPair(me.id, toId)) return toast('Not a permitted relationship.','err');
-        const amt = parseFloat($('#sendAmt').value||'0'); if(!(amt>0)) return toast('Enter a positive amount.','warn');
-        if(w.balance < amt) return toast('Insufficient balance.','err');
-        const po = $('#sendPO').value.trim();
-        w.balance -= amt;
-        w.ledger.push({ts:now(), kind:'Spent', detail:`Transfer to ${companyById(toId).name}${po?` (PO ${escapeHTML(po)})`:''}`, amount:-amt});
-        const rw = walletFor(toId);
-        rw.balance += amt;
-        rw.ledger.push({ts:now(), kind:'Earned', detail:`Transfer from ${me.name}${po?` (PO ${escapeHTML(po)})`:''}`, amount:+amt});
-        state.walletAuditLog.push({ts:now(), actor:session.role, company:session.companyId, action:'send', to:toId, amount:amt, po});
-        save(); updateWalletChip(); renderWallet(); toast('Transfer sent.');
-      });
-      $('#svcBuy').addEventListener('click', ()=>{
-        const val = $('#svcItem').value; const [item, priceStr] = val.split('|'); const price = parseFloat(priceStr||'0');
-        if(walletFor(me.id).balance < price) return toast('Insufficient balance.','err');
-        const po = $('#svcPO').value.trim();
-        w.balance -= price;
-        w.ledger.push({ts:now(), kind:'Spent', detail:`Service purchase — ${item}${po?` (PO ${escapeHTML(po)})`:''}`, amount:-price});
-        state.walletAuditLog.push({ts:now(), actor:session.role, company:session.companyId, action:'purchase', item, price, po});
-        save(); updateWalletChip(); renderWallet(); toast('Service purchased.');
-      });
-    }
-  }
-
-  
-  function validatePOData(items, currency){
-    if(!items || !items.length) throw new Error('At least one item required');
-    items.forEach((it, idx)=>{
-      if(!it.name || !it.name.trim()) throw new Error(`Item ${idx+1}: name required`);
-      if(Number(it.qty) <= 0) throw new Error(`Item ${idx+1}: quantity must be positive`);
-      if(Number(it.price) < 0) throw new Error(`Item ${idx+1}: price cannot be negative`);
-    });
-    return true;
-  }
-
-  function visiblePOsFor(companyId){
-    return state.pos.filter(p=>p.buyerId===companyId || p.supplierId===companyId);
-  }
-  function roleCanSendPO(){
-    const t = typeOf(session.companyId);
-    if(t==='Importer' && session.role==='Procurement Manager') return true;
-    if(t==='Processor' && (session.role==='Sales/Account Manager' || session.role==='Procurement Manager')) return true;
-    return false;
-  }
-  function roleCanApprove(po){
-    const meType = typeOf(session.companyId);
-    if(po.buyerId===session.companyId){
-      if(meType==='Importer' && session.role==='Procurement Manager') return true;
-      if(meType==='Processor' && session.role==='Sales/Account Manager') return true;
-    }
-    return false;
-  }
-  function roleCanRequestQA(){
-    const t = typeOf(session.companyId);
-    return (t==='Importer' && session.role==='QA Manager') || (t==='Processor' && session.role==='Quality Manager');
-  }
-  function roleCanRecordQA(){
-    const t = typeOf(session.companyId);
-    return (t==='Processor' && session.role==='Quality Manager') || (t==='Coop' && session.role==='QA Liaison');
-  }
-  function roleCanAddShipment(po){
-    const meType = typeOf(session.companyId);
-    if(po.supplierId===session.companyId){
-      if(meType==='Processor' && (session.role==='Logistics Manager' || session.role==='Production Manager')) return true;
-      if(meType==='Coop' && (session.role==='Sales Manager' || session.role==='Logistics Coordinator')) return true;
-    }
-    if(po.buyerId===session.companyId){
-      if(meType==='Importer' && session.role==='Logistics Manager') return true;
-      if(meType==='Processor' && session.role==='Logistics Manager') return true;
-    }
-    return false;
-  }
-  
-  function shouldShowLogisticsCoordination(po) {
-    if(session.role === 'Logistics Manager' || session.role === 'Logistics Coordinator') {
-      return po.buyerId === session.companyId || po.supplierId === session.companyId;
-    }
-    return roleCanAddShipment(po);
-  }
-
-  function wirePOCardActions(){
-    const container = document.getElementById('tab-pos');
-    if(!container) return;
-
-    container.addEventListener('click', (ev) => {
-      const btn = ev.target.closest('button');
-      if(!btn) return;
-      
-      const id = btn.dataset.id;
-      if(!id) return;
-
-      const po = state.pos.find(p=>p.id===id);
-      if(!po) return;
-
-      const cl = btn.classList;
-      if(cl.contains('btn-post')){
-        const inp = document.getElementById('msg-'+id);
-        const msg = (inp && inp.value || '').trim();
-        if(!msg) return;
-        po.thread.push({author: session.companyId+':'+session.role, msg: escapeHTML(msg), ts: now()});
-        if(inp) inp.value='';
-        save(); renderPOs();
-        return;
-      }
-      if(cl.contains('btn-label-accept')){
-        po.labelStatus='Accepted'; save(); toast('Label accepted.');
-        renderPOs();
-        return;
-      }
-      if(cl.contains('btn-approve')){
-        if(!roleCanApprove(po)) return;
-        po.status='Approved'; save(); toast('PO approved.');
-        renderPOs();
-        return;
-      }
-      if(cl.contains('btn-ship')){
-        if(po.labelStatus!=='Accepted') return toast('Blocking: Label not accepted. Use Override + note to proceed.','err');
-        const qty = po.items.reduce((a,it)=>a+Number(it.qty||0),0);
-        const logisticsProvider = $(`#logistics-${id}`)?.value;
-        const carrier = $(`#carrier-${id}`)?.value || 'TBD';
-        const tracking = $(`#tracking-${id}`)?.value || '';
-        const provider = state.logisticsProviders?.find(p => p.id === logisticsProvider);
-        const providerName = provider ? provider.name : 'Not specified';
-        const shipment = {
-          id: 'S'+(po.shipments.length+1), 
-          qty, 
-          ts: now(),
-          logisticsProvider: logisticsProvider,
-          logisticsProviderName: providerName,
-          carrier: carrier,
-          tracking: tracking
-        };
-        po.shipments = po.shipments || []; 
-        po.shipments.push(shipment);
-        if(po.status==='Open' || po.status==='Approved') po.status='ReadyToShip';
-        const logisticsMsg = `Shipment created: ${qty} units via ${escapeHTML(providerName)} (${escapeHTML(carrier)})${tracking ? `, Tracking: ${escapeHTML(tracking)}` : ''}`;
-        po.thread.push({author: session.companyId+':'+session.role, msg: logisticsMsg, ts: now()});
-        save(); 
-        toast('Shipment with logistics coordination added.'); 
-        renderPOs();
-        return;
-      }
-      if(cl.contains('btn-override')){
-        const note = prompt('Override requires a note. Explain why you proceed without Label: Accepted.');
-        if(!note || !note.trim()) return toast('Override cancelled (note required).','warn');
-        if(roleCanAddShipment(po)){
-          const qty = po.items.reduce((a,it)=>a+Number(it.qty||0),0);
-          po.shipments = po.shipments||[]; po.shipments.push({id:'S'+(po.shipments.length+1), qty, ts:now()});
-          if(po.status==='Open' || po.status==='Approved') po.status='ReadyToShip';
-          addAuditLog('po_override', { poId: po.id, alertCode:'LABEL_NOT_ACCEPTED', overrideNote: escapeHTML(note)});
-          po.thread.push({author: session.companyId+':'+session.role, msg:`Shipment added without label (note: ${escapeHTML(note)})`, ts: now()});
-        }else if(roleCanApprove(po)){
-          const before = po.status;
-          po.status='Approved';
-          addAuditLog('po_override', { poId: po.id, alertCode:'LABEL_NOT_ACCEPTED', overrideNote: escapeHTML(note)});
-          po.thread.push({author: session.companyId+':'+session.role, msg:`Approved without label (note: ${escapeHTML(note)})`, ts: now()});
-        }
-        save(); toast('Override recorded.');
-        renderPOs();
-        return;
-      }
-      if(cl.contains('btn-attach')){
-        const input = document.getElementById('file-'+id);
-        const file = input && input.files && input.files[0];
-        if(!file) return toast('Select a PDF first.','warn');
-        processPDFForPO(file, po).then(() => renderPOs());
-      }
-    });
-  }
-
-
-  function renderPOs(){
-    const me = companyById(session.companyId);
-    const myPOs = visiblePOsFor(me.id);
-    const canSend = roleCanSendPO();
-    const posReceived = myPOs.filter(p => p.supplierId === me.id);
-    const posIssued = myPOs.filter(p => p.buyerId === me.id);
-    $('#tab-pos').innerHTML = `
-      <div class="row-between">
-        <div class="section-title">Purchase Orders</div>
-        <button id="btnNewPO" class="btn btn-brand ${canSend?'':'hidden'}">Send New PO</button>
-      </div>
-      <div class="grid cols-1" style="gap:1.5rem;">
-        ${posReceived.length > 0 ? `
-          <div>
-            <div class="row-between" style="margin-bottom:.75rem;">
-              <h3 style="color:var(--text);margin:0;">POs Received (${posReceived.length})</h3>
-              <span class="muted small">Orders from customers to us</span>
+            
+            <div class="veripura-branding">
+                <div class="logo-placeholder">VP</div>
+                <div class="brand-name">VeriPura</div>
             </div>
-            <div class="col" id="posReceivedList">
-              ${posReceived.map(poCard).join('')}
-            </div>
-          </div>
-        ` : ''}
-        ${posIssued.length > 0 ? `
-          <div>
-            <div class="row-between" style="margin-bottom:.75rem;">
-              <h3 style="color:var(--text);margin:0;">POs Issued (${posIssued.length})</h3>
-              <span class="muted small">Orders from us to suppliers</span>
-            </div>
-            <div class="col" id="posIssuedList">
-              ${posIssued.map(poCard).join('')}
-            </div>
-          </div>
-        ` : ''}
-        ${posReceived.length === 0 && posIssued.length === 0 ? `
-          <div class="card muted">No POs yet.</div>
-        ` : ''}
-      </div>
-    `;
-    $$('#posReceivedList .accordion-head, #posIssuedList .accordion-head').forEach(h=>h.addEventListener('click',()=>{
-      const body = h.nextElementSibling; 
-      body.style.display = body.style.display==='block' ? 'none' : 'block';
-    }));
-    wirePOCardActions();
-    if(canSend){
-      $('#btnNewPO').addEventListener('click', openNewPOModal);
-    }
-  }
-
-  function poCard(p){
-    const buyer = companyById(p.buyerId), supplier = companyById(p.supplierId);
-    const alerts = [];
-    if(p.labelStatus!=='Accepted') alerts.push('<span class="tag block">Label not accepted</span>');
-    if(p.rewards && (p.rewards.organic || p.rewards.fairTrade || p.rewards.rainforest)) alerts.push('<span class="tag warn">Compliance awards pending</span>');
-    const gmp = state.certs.find(c=>c.companyId===p.supplierId && c.type==='GMP');
-    if(!gmp) alerts.push('<span class="tag warn">Processor GMP missing/expired</span>');
-    else{
-      const daysLeft = (new Date(gmp.expiresAt) - Date.now()) / 86400000;
-      if(daysLeft<=0) alerts.push('<span class="tag warn">Processor GMP expired</span>');
-      else if(daysLeft<30) alerts.push('<span class="tag warn">Processor GMP expiring soon</span>');
-    }
-    const traceVisible = ['ReadyToShip','Shipped','Received','Completed'].includes(p.status);
-    const logisticsDropdown = roleCanAddShipment(p) ? renderLogisticsProviderDropdown(session.companyId, `logistics-${p.id}`) : '';
-    return `
-      <div class="accordion-item">
-        <div class="accordion-head">
-          <div class="row" style="gap:.75rem">
-            <span class="pill">${escapeHTML(p.id)}</span>
-            <strong>${escapeHTML(buyer.name)} → ${escapeHTML(supplier.name)}</strong>
-            <span class="muted small">Status: ${escapeHTML(p.status)}</span>
-            <span class="small">Label: <span class="tag ${p.labelStatus==='Accepted'?'ok':p.labelStatus==='Pending Review'?'warn':p.labelStatus==='Requested'?'warn':'block'}">${p.labelStatus}</span></span>
-            <span class="small">Total: <strong>${p.total.toFixed(2)} ${escapeHTML(p.currency)}</strong></span>
-            <span class="row" style="gap:.35rem">${alerts.join(' ')}</span>
-          </div>
-          <div>▼</div>
-        </div>
-        <div class="accordion-body">
-          <div class="grid cols-2">
-            <div class="col">
-              <div class="section-title">Thread</div>
-              <div class="card" id="thread-${p.id}">${p.thread.map(t=>`<div class="row" style="gap:.5rem"><span class="pill">${escapeHTML(t.author)}</span><span class="small">${escapeHTML(t.msg)}</span><span class="muted small right">${t.ts}</span></div>`).join('')}</div>
-              <div class="inline-form" style="margin-top:.5rem">
-                <input class="input" id="msg-${p.id}" placeholder="Add message..." />
-                <button class="btn btn-primary btn-post" data-id="${p.id}">Post</button>
-              </div>
-              <div class="divider"></div>
-              <div class="section-title">QA & Label</div>
-              <div class="row" style="flex-wrap:wrap;gap:.5rem">
-                <button class="btn btn-primary btn-req-qa ${roleCanRequestQA()?'':'hidden'}" data-id="${p.id}">Request Testing</button>
-                <button class="btn btn-ok btn-label-accept ${roleCanRequestQA()?'':'hidden'}" data-id="${p.id}">Mark Label Accepted</button>
-                <span class="muted small">QA Results can be recorded by Processor Quality Manager or Coop QA Liaison.</span>
-              </div>
-            </div>
-            <div class="col">
-                <div class="section-title">Actions</div>
-                <div class="row" style="flex-wrap:wrap;gap:.5rem">
-                  <button class="btn btn-brand btn-approve ${roleCanApprove(p)?'':'hidden'}" data-id="${p.id}">Approve</button>
-                  <button class="btn btn-primary btn-ship ${roleCanAddShipment(p)?'':'hidden'}" data-id="${p.id}">Add Shipment</button>
-                  <button class="btn btn-warn btn-override ${roleCanApprove(p)||roleCanAddShipment(p)?'':'hidden'}" data-id="${p.id}">Override (with note)</button>
+            
+            <h1 data-translate="main_title">Breaking the Global Food Paper Jam</h1>
+            <div class="value-proposition">
+                <div class="problem-statement">
+                    <h2 data-translate="problem_title">🚨 The Reality: 25+ documents per container. One small error = delays, rejections, contamination risks.</h2>
+                    <p data-translate="problem_desc">Manual paperwork, countless middlemen, zero transparency. Your food supply chain is drowning in inefficiency.</p>
                 </div>
-                ${shouldShowLogisticsCoordination(p) ? `
-                  <div class="divider"></div>
-                  <div class="section-title">🚛 Logistics Coordination</div>
-                  <div class="card" style="background:#0a1016;border:1px solid #1a4b3a;">
-                    <div class="col">
-                      <label class="label">Logistics Provider</label>
-                      ${logisticsDropdown}
-                      <label class="label">Carrier/Transport Mode</label>
-                      <input class="input" id="carrier-${p.id}" placeholder="e.g., Truck #TH-1234, Container MSKU-12345" />
-                      <label class="label">Tracking Reference</label>
-                      <input class="input" id="tracking-${p.id}" placeholder="Optional tracking number" />
-                      <div class="small muted" style="margin-top:.5rem;">
-                        ${getAvailableLogisticsProviders(session.companyId).length} providers available for ${typeOf(session.companyId)}
-                      </div>
+                <div class="solution-statement">
+                    <h2 data-translate="solution_title">✅ VeriPura Solution: Digital verification, instant traceability, complete trust.</h2>
+                    <p data-translate="solution_desc">We're not just moving paperwork online. We're creating a tamperproof chain of trust from farm to shelf.</p>
+                </div>
+            </div>
+            <p class="cta-subtitle" data-translate="cta_subtitle">Calculate exactly how much this inefficiency is costing YOUR business:</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Import Volume -->
+            <div class="form-section">
+                <h3>
+                    <span class="icon">📦</span>
+                    <span data-translate="import_volume">Your Import Volume</span>
+                </h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="containersMonth" data-translate="containers_month">Containers per Month</label>
+                        <input type="number" id="containersMonth" min="0" step="0.1" onchange="calculateSavings()">
                     </div>
-                  </div>` : ''}
-              <div class="divider"></div>
-              <div class="section-title">Documents</div>
-              <div id="doclist-${p.id}" class="card small">${(p.attachedDocs || []).map(d=>`<div>${escapeHTML(d.name)} <span class="muted">[Attached at ${d.attachedAt}]</span></div>`).join('')||'<div class="muted">— No documents attached —</div>'}</div>
-              <div class="inline-form" style="margin-top:.5rem">
-                <input class="input" type="file" id="file-${p.id}" accept="application/pdf" />
-                <button class="btn btn-primary btn-attach" data-id="${p.id}">Attach PDF</button>
-              </div>
+                    <div class="form-group">
+                        <label for="containersYear" data-translate="containers_year">Containers per Year</label>
+                        <input type="number" id="containersYear" min="0" step="0.1" onchange="calculateSavings()">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="valuePerContainer" data-translate="value_per_container">Average Value per Container (€)</label>
+                        <input type="number" id="valuePerContainer" min="0" step="1000" onchange="calculateSavings()" placeholder="50000">
+                        <small style="color: #666; font-size: 0.9rem; margin-top: 5px; display: block;" data-translate="value_help">
+                            Helps calculate risk exposure and percentage savings
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="hourlyRate" data-translate="hourly_rate">Procurement & QA Staff Average Hourly Rate (€)</label>
+                        <input type="number" id="hourlyRate" min="0" step="1" onchange="calculateSavings()" placeholder="30" value="30">
+                        <small style="color: #666; font-size: 0.9rem; margin-top: 5px; display: block;" data-translate="rate_help">
+                            Cost per hour for compliance and documentation staff
+                        </small>
+                    </div>
+                </div>
             </div>
-          </div>
-          <div class="divider"></div>
-          <div class="section-title">Traceability & Shipments</div>
-          <div id="trace-${p.id}" class="card small">${traceVisible ? renderTrace(p) : '<span class="muted">Traceability appears when status is ReadyToShip / Shipped / Received / Completed.</span>'}</div>
+
+            <!-- Audit Information -->
+            <div class="form-section">
+                <h3>
+                    <span class="icon">📋</span>
+                    <span data-translate="audit_compliance">Audit & Compliance</span>
+                </h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="auditsPerYear">Audits per Year</label>
+                        <input type="number" id="auditsPerYear" min="0" step="0.1" onchange="calculateSavings()">
+                    </div>
+                    <div class="form-group">
+                        <label for="auditHours">Total Hours per Audit</label>
+                        <input type="number" id="auditHours" min="0" step="0.5" onchange="calculateSavings()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recall Impact -->
+            <div class="form-section">
+                <h3>
+                    <span class="icon">⚠️</span>
+                    <span data-translate="recall_risk">Recall Risk Assessment</span>
+                </h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="recallFrequency">Recalls in Past 5 Years</label>
+                        <input type="number" id="recallFrequency" min="0" step="1" onchange="calculateSavings()">
+                    </div>
+                    <div class="form-group">
+                        <label for="avgRecallValue">Average Value of Product Recalled (€)</label>
+                        <input type="number" id="avgRecallValue" min="0" step="100" onchange="calculateSavings()">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="reputationalImpact">Reputational Impact Cost (€)</label>
+                        <input type="number" id="reputationalImpact" min="0" step="1000" onchange="calculateSavings()">
+                    </div>
+                    <div class="form-group">
+                        <label for="lostSales">Lost Future Sales (€)</label>
+                        <input type="number" id="lostSales" min="0" step="1000" onchange="calculateSavings()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Situation Analysis -->
+            <div class="pain-section" id="painSection">
+                <h3 data-translate="current_reality">📋 Your Current Documentation Reality</h3>
+                <div class="pain-grid">
+                    <div class="pain-card">
+                        <h4 data-translate="hours_per_container">Hours Per Container</h4>
+                        <div class="pain-value" id="currentHours">37.5 hours</div>
+                        <p data-translate="manual_desc">Manual document preparation, checking, submission, verification</p>
+                    </div>
+                    <div class="pain-card">
+                        <h4 data-translate="annual_paperwork_hours">Annual Paperwork Hours</h4>
+                        <div class="pain-value" id="annualHours">0 hours</div>
+                        <p data-translate="staff_time_desc">Staff time dedicated just to compliance documentation</p>
+                    </div>
+                    <div class="pain-card">
+                        <h4 data-translate="current_annual_cost">Current Annual Cost</h4>
+                        <div class="pain-value" id="currentCost">€0</div>
+                        <p data-translate="spending_desc">What you're spending on manual processes today</p>
+                    </div>
+                    <div class="pain-card">
+                        <h4 data-translate="risk_exposure">Risk Exposure</h4>
+                        <div class="pain-value" id="riskExposure">€0</div>
+                        <p data-translate="annual_risk_desc">Annual risk from recalls, errors, compliance issues</p>
+                    </div>
+                </div>
+                <div class="implications">
+                    <h4 data-translate="what_this_means">⚠️ What This Really Means:</h4>
+                    <ul id="implicationsList">
+                        <li>Staff spending days per month on repetitive paperwork instead of strategic work</li>
+                        <li>High risk of human errors in critical compliance documents</li>
+                        <li>Delayed shipments due to documentation bottlenecks</li>
+                        <li>Audit stress and scrambling to find documentation</li>
+                        <li>Constant worry about regulatory compliance gaps</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results-section" id="resultsSection">
+                <h3 data-translate="transformation_title">🚀 Your Transformation with VeriPura</h3>
+                <div class="transformation-intro">
+                    <p data-translate="transformation_intro"><strong>From 37.5 hours to 11.25 hours per container.</strong> From manual chaos to automated precision.</p>
+                </div>
+                <div class="results-grid">
+                    <div class="result-card">
+                        <h4 data-translate="result_doc">Annual Documentation Savings</h4>
+                        <div class="value" id="docSavings">€0</div>
+                        <small>70% reduction in manual work</small>
+                    </div>
+                    <div class="result-card">
+                        <h4 data-translate="result_audit">Annual Audit Savings</h4>
+                        <div class="value" id="auditSavings">€0</div>
+                        <small>90% reduction in audit prep time</small>
+                    </div>
+                    <div class="result-card">
+                        <h4 data-translate="result_risk">Risk Reduction Value</h4>
+                        <div class="value" id="riskSavings">€0</div>
+                        <small>80% reduction in compliance risk</small>
+                    </div>
+                    <div class="result-card">
+                        <h4 data-translate="result_total">Total Annual Savings</h4>
+                        <div class="value" id="totalSavings">€0</div>
+                        <small>Your complete transformation value</small>
+                    </div>
+                    <div class="result-card">
+                        <h4 data-translate="result_roi">ROI on VeriPura</h4>
+                        <div class="value" id="roi">0%</div>
+                        <small>Return on investment</small>
+                    </div>
+                    <div class="result-card">
+                        <h4 data-translate="result_payback">Payback Period</h4>
+                        <div class="value" id="payback">0 months</div>
+                        <small>Time to break even</small>
+                    </div>
+                </div>
+                <div class="meeting-cta">
+                    <h4 data-translate="cta_title">🎯 Want to see exactly how this works for YOUR specific situation?</h4>
+                    <p data-translate="cta_text">Every business is unique. Let's discuss your specific challenges, compliance requirements, and how VeriPura can be customized for your operation.</p>
+                    <a href="https://calendar.app.google/H8kuH7mwWpFpphM5A" target="_blank" class="btn btn-meeting" data-translate="cta_btn">
+                        📅 Book a 30-Minute Strategy Call
+                    </a>
+                    <p class="meeting-subtext" data-translate="cta_sub">Free consultation • No commitment • Get personalized insights</p>
+                </div>
+            </div>
+
+            <!-- Generate Report -->
+            <div class="generate-section">
+                <h3 data-translate="get_detailed_report">🎯 Get Your Detailed Savings Report</h3>
+                <p data-translate="fill_details_below">Ready to see your complete analysis? Fill in your details below to receive a comprehensive PDF report.</p>
+                
+                <div class="form-row" style="margin-top: 30px;">
+                    <div class="form-group">
+                        <label for="companyName" data-translate="company_name">Company Name *</label>
+                        <input type="text" id="companyName" required placeholder="Your Company Ltd.">
+                    </div>
+                    <div class="form-group">
+                        <label for="contactName" data-translate="contact_name">Contact Name *</label>
+                        <input type="text" id="contactName" required placeholder="John Smith">
+                    </div>
+                    <div class="form-group">
+                        <label for="email" data-translate="email_address">Email Address *</label>
+                        <input type="email" id="email" required placeholder="john@company.com">
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <button class="btn" onclick="generatePDF()" data-translate="generate_report">📊 Generate & Email My Savings Report</button>
+                    <p style="margin-top: 15px; font-size: 0.9rem; color: #666;" data-translate="email_info">
+                        Report will be sent to your email address and copied to our team at info@veripura.com
+                    </p>
+                </div>
+            </div>
         </div>
-      </div>
-    `;
-  }
-  function renderTrace(p){
-    let html = '';
-    if(p.trace && Object.keys(p.trace).length > 0) {
-      const t = p.trace;
-      const lots = (t.lots||[]).map(l=>`<span class="pill">${escapeHTML(l.id)}: ${l.qty}</span>`).join(' ');
-      const chain = (t.chain||[]).join(' → ');
-      html += `<div class="col">
-        <div><strong>Supply Chain:</strong> ${escapeHTML(chain||'—')}</div>
-        <div><strong>Lot Traceability:</strong> ${lots||'—'}</div>
-        <div><strong>Geographic Origin:</strong> ${escapeHTML(t.geo||'—')}</div>
-      </div>`;
-    }
-    if(p.shipments && p.shipments.length > 0) {
-      html += '<div class="divider"></div><div class="section-title small">Logistics & Shipments</div><div class="col">';
-      p.shipments.forEach((s, idx) => {
-        const logisticsInfo = s.logisticsProviderName ? `via <strong>${escapeHTML(s.logisticsProviderName)}</strong>` : '';
-        const carrierInfo = s.carrier ? `Carrier: <span class="kbd">${escapeHTML(s.carrier)}</span>` : '';
-        const trackingInfo = s.tracking ? `Tracking: <span class="kbd">${escapeHTML(s.tracking)}</span>` : '';
-        
-        const details = [carrierInfo, trackingInfo].filter(Boolean).join(' | ');
-        
-        html += `<div class="small">
-          <strong>Shipment ${idx + 1}:</strong> ${s.qty} units ${logisticsInfo}
-          ${details ? `<br><span class="muted">${details}</span>` : ''}
-        </div>`;
-      });
-      html += '</div>';
-    }
-    return html || '<span class="muted">— No trace or shipment data —</span>';
-  }
 
-  function openNewPOModal(){
-    const me = companyById(session.companyId);
-    const targets = allowedCounterpartiesFor(me.id);
-    const targetOpts = targets.map(c=>`<option value="${c.id}">${escapeHTML(c.name)} — ${c.type}</option>`).join('');
-    const modal = $('#modal');
-    modal.classList.remove('hidden');
-    modal.innerHTML = `
-      <div class="card" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);z-index:999">
-        <div class="card" style="max-width:860px;width:95%;max-height:88vh;overflow:auto;background:#0d1217">
-          <div class="row-between">
-            <div class="section-title">Send New PO</div>
-            <button id="xModal" class="btn">Close</button>
-          </div>
-          <div class="grid cols-2">
-            <div class="col">
-              <label class="label">Supplier</label>
-              <select id="poSupplier">${targetOpts}</select>
-              <label class="label">Currency</label>
-              <select id="poCur"><option>EUR</option><option>USD</option><option>THB</option></select>
-              <div class="divider"></div>
-              <div class="section-title">Items</div>
-              <table class="table" id="poItems">
-                <thead><tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Total</th><th></th></tr></thead>
-                <tbody></tbody>
-              </table>
-              <button id="addRow" class="btn btn-primary">Add Row</button>
-              <div class="row right"><div class="chip">Grand Total: <strong id="grandTotal">0.00</strong></div></div>
-            </div>
-            <div class="col">
-              <label class="label">Attach PO PDF (optional)</label>
-              <input id="poFile" class="input" type="file" accept="application/pdf" />
-              <label class="label">Initial message</label>
-              <input id="poMsg" class="input" placeholder="Kickoff note..." />
-              <div class="divider"></div>
-              <div class="section-title">Compliance rewards (VERI)</div>
-              <div class="grid cols-3">
-                <div><label class="label small">Organic</label><input id="rwOrg" class="input" type="number" step="1" value="1000" /></div>
-                <div><label class="label small">Fair Trade</label><input id="rwFair" class="input" type="number" step="1" value="1000" /></div>
-                <div><label class="label small">Rainforest</label><input id="rwRain" class="input" type="number" step="1" value="1000" /></div>
-              </div>
-              <div class="divider"></div>
-              <div class="section-title">Doc requests</div>
-              <div id="docBadges" class="row" style="flex-wrap:wrap;gap:.5rem"></div>
-            </div>
-          </div>
-          <div class="divider"></div>
-          <div class="row-between">
-            <span class="muted small">Notes: inputs sanitized; file hashed for tamper detection.</span>
-            <button id="createPO" class="btn btn-brand">Create PO</button>
-          </div>
+        <div class="footer-links">
+            <a href="https://www.veripura.com" target="_blank" data-translate="footer_site">Visit VeriPura.com</a>
+            <a href="mailto:info@veripura.com" data-translate="footer_contact">Contact Us: info@veripura.com</a>
         </div>
-      </div>
-    `;
-    $('#xModal').addEventListener('click', ()=>{ modal.classList.add('hidden'); modal.innerHTML=''; });
-    const tbody = $('#poItems tbody');
-    function addRow(item='', qty=0, price=0){
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><input class="input it-name" value="${escapeHTML(item)}" /></td>
-        <td><input class="input it-qty" type="number" step="0.01" value="${qty}"/></td>
-        <td><input class="input it-price" type="number" step="0.01" value="${price}"/></td>
-        <td class="it-total">0.00</td>
-        <td><button class="btn btn-danger btn-del">×</button></td>
-      `;
-      tbody.appendChild(tr);
-      recalc();
-      tr.querySelectorAll('input').forEach(inp=>inp.addEventListener('input', recalc));
-      tr.querySelector('.btn-del').addEventListener('click', ()=>{ tr.remove(); recalc(); });
-    }
-    function recalc(){
-      let total = 0;
-      $$('#poItems tbody tr').forEach(tr=>{
-        const q = parseFloat(tr.querySelector('.it-qty').value||'0');
-        const pr = parseFloat(tr.querySelector('.it-price').value||'0');
-        const tt = (q*pr)||0;
-        total += tt;
-        tr.querySelector('.it-total').textContent = tt.toFixed(2);
-      });
-      $('#grandTotal').textContent = total.toFixed(2);
-    }
-    $('#addRow').addEventListener('click', ()=> addRow());
-    addRow('',1,1);
+    </div>
 
-    function renderDocBadges(){
-      const supId = $('#poSupplier').value;
-      const out = [];
-      const needed = ['GMP','Organic','FairTrade'];
-      needed.forEach(t=>{
-        const c = state.certs.find(c=>c.companyId===supId && c.type===t);
-        if(!c){ out.push(`<span class="tag warn">${t}: Missing</span>`); return; }
-        const daysLeft = (new Date(c.expiresAt) - Date.now())/86400000;
-        if(daysLeft<=0) out.push(`<span class="tag warn">${t}: Expired</span>`);
-        else if(daysLeft<30) out.push(`<span class="tag warn">${t}: Expiring soon</span>`);
-        else out.push(`<span class="tag ok">${t}: Valid</span>`);
-      });
-      $('#docBadges').innerHTML = out.join(' ');
-    }
-    $('#poSupplier').addEventListener('change', renderDocBadges);
-    renderDocBadges();
+    <script>
+/* ========= Simple i18n ========= */
+window.translations = {
+  en: {
+    main_title: "Breaking the Global Food Paper Jam",
+    problem_title: "🚨 The Reality: 25+ documents per container. One small error = delays, rejections, contamination risks.",
+    problem_desc: "Manual paperwork, countless middlemen, zero transparency. Your food supply chain is drowning in inefficiency.",
+    solution_title: "✅ VeriPura Solution: Digital verification, instant traceability, complete trust.",
+    solution_desc: "We're not just moving paperwork online. We're creating a tamperproof chain of trust from farm to shelf.",
+    cta_subtitle: "Calculate exactly how much this inefficiency is costing YOUR business:",
+    import_volume: "Your Import Volume",
+    containers_month: "Containers per Month",
+    containers_year: "Containers per Year",
+    value_per_container: "Average Value per Container (€)",
+    value_help: "Helps calculate risk exposure and percentage savings",
+    hourly_rate: "Procurement & QA Staff Average Hourly Rate (€)",
+    rate_help: "Cost per hour for compliance and documentation staff",
+    audit_compliance: "Audit & Compliance",
+    recall_risk: "Recall Risk Assessment",
+    current_reality: "📋 Your Current Documentation Reality",
+    hours_per_container: "Hours Per Container",
+    manual_desc: "Manual document preparation, checking, submission, verification",
+    annual_paperwork_hours: "Annual Paperwork Hours",
+    staff_time_desc: "Staff time dedicated just to compliance documentation",
+    current_annual_cost: "Current Annual Cost",
+    spending_desc: "What you're spending on manual processes today",
+    risk_exposure: "Risk Exposure",
+    annual_risk_desc: "Annual risk from recalls, errors, compliance issues",
+    what_this_means: "⚠️ What This Really Means:",
+    transformation_title: "🚀 Your Transformation with VeriPura",
+    transformation_intro: "From 37.5 hours to 11.25 hours per container. From manual chaos to automated precision.",
+    result_doc: "Annual Documentation Savings",
+    result_audit: "Annual Audit Savings",
+    result_risk: "Risk Reduction Value",
+    result_total: "Total Annual Savings",
+    result_roi: "ROI on VeriPura",
+    result_payback: "Payback Period",
+    cta_title: "🎯 Want to see exactly how this works for YOUR specific situation?",
+    cta_text: "Every business is unique. Let's discuss your specific challenges, compliance requirements, and how VeriPura can be customized for your operation.",
+    cta_btn: "📅 Book a 30-Minute Strategy Call",
+    cta_sub: "Free consultation • No commitment • Get personalized insights",
+    get_detailed_report: "🎯 Get Your Detailed Savings Report",
+    fill_details_below: "Ready to see your complete analysis? Fill in your details below to receive a comprehensive PDF report.",
+    company_name: "Company Name *",
+    contact_name: "Contact Name *",
+    email_address: "Email Address *",
+    generate_report: "📊 Generate & Email My Savings Report",
+    email_info: "Report will be sent to your email address and copied to our team at info@veripura.com",
+    footer_site: "Visit VeriPura.com",
+    footer_contact: "Contact Us: info@veripura.com",
+    unit_hours: "hours",
+    unit_months: "months"
+  },
+  de: {
+    main_title: "Den globalen Papierstau der Lebensmittelkette auflösen",
+    problem_title: "🚨 Die Realität: 25+ Dokumente pro Container. Ein kleiner Fehler = Verzögerungen, Ablehnungen, Kontaminationsrisiken.",
+    problem_desc: "Manuelle Papierarbeit, unzählige Zwischenstellen, keine Transparenz. Ihre Lieferkette ertrinkt in Ineffizienz.",
+    solution_title: "✅ VeriPura-Lösung: Digitale Verifizierung, sofortige Rückverfolgbarkeit, vollständiges Vertrauen.",
+    solution_desc: "Wir verlagern nicht nur Papier ins Digitale – wir schaffen eine manipulationssichere Vertrauenskette vom Hof bis ins Regal.",
+    cta_subtitle: "Berechnen Sie genau, was diese Ineffizienz Ihr Unternehmen kostet:",
+    import_volume: "Ihr Importvolumen",
+    containers_month: "Container pro Monat",
+    containers_year: "Container pro Jahr",
+    value_per_container: "Durchschnittlicher Wert pro Container (€)",
+    value_help: "Hilft, Risikoexposition und prozentuale Einsparungen zu berechnen",
+    hourly_rate: "Durchschn. Stundensatz Einkauf & QS (€)",
+    rate_help: "Kosten pro Stunde für Compliance- und Dokumentationsteams",
+    audit_compliance: "Audit & Compliance",
+    recall_risk: "Rückrufrisiko-Bewertung",
+    current_reality: "📋 Ihre aktuelle Dokumentationsrealität",
+    hours_per_container: "Stunden pro Container",
+    manual_desc: "Manuelle Erstellung, Prüfung, Einreichung und Verifizierung von Dokumenten",
+    annual_paperwork_hours: "Jährliche Papierarbeitsstunden",
+    staff_time_desc: "Mitarbeiterzeit nur für Compliance-Dokumente",
+    current_annual_cost: "Aktuelle Jahreskosten",
+    spending_desc: "Das geben Sie heute für manuelle Prozesse aus",
+    risk_exposure: "Risikobelastung",
+    annual_risk_desc: "Jährliches Risiko durch Rückrufe, Fehler, Compliance-Probleme",
+    what_this_means: "⚠️ Was das wirklich bedeutet:",
+    transformation_title: "🚀 Ihre Transformation mit VeriPura",
+    transformation_intro: "Von 37,5 auf 11,25 Stunden pro Container. Von Chaos zu Automatisierung.",
+    result_doc: "Jährliche Dokumentations-Ersparnis",
+    result_audit: "Jährliche Audit-Ersparnis",
+    result_risk: "Wert der Risikoreduktion",
+    result_total: "Gesamte jährliche Ersparnis",
+    result_roi: "ROI mit VeriPura",
+    result_payback: "Amortisationszeit",
+    cta_title: "🎯 Möchten Sie sehen, wie das konkret für SIE funktioniert?",
+    cta_text: "Jedes Unternehmen ist einzigartig. Lassen Sie uns Ihre Anforderungen und eine maßgeschneiderte Lösung besprechen.",
+    cta_btn: "📅 30-minütiges Strategiegespräch buchen",
+    cta_sub: "Kostenfrei • Unverbindlich • Individuelle Einblicke",
+    get_detailed_report: "🎯 Ihren detaillierten Einsparungsbericht erhalten",
+    fill_details_below: "Daten ausfüllen und einen umfassenden PDF-Bericht erhalten.",
+    company_name: "Firmenname *",
+    contact_name: "Ansprechpartner *",
+    email_address: "E-Mail-Adresse *",
+    generate_report: "📊 Bericht erzeugen & mailen",
+    email_info: "Bericht an Ihre E-Mail und in Kopie an info@veripura.com",
+    footer_site: "Besuchen Sie VeriPura.com",
+    footer_contact: "Kontakt: info@veripura.com",
+    unit_hours: "Stunden",
+    unit_months: "Monate"
+  },
+  fr: {
+    main_title: "Mettre fin à l'embouteillage papier mondial de l'alimentaire",
+    problem_title: "🚨 La réalité : plus de 25 documents par conteneur. Une petite erreur = retards, refus, risques de contamination.",
+    problem_desc: "Paperasse manuelle, multiples intermédiaires, zéro transparence. Votre chaîne d'approvisionnement étouffe sous l'inefficacité.",
+    solution_title: "✅ Solution VeriPura : vérification numérique, traçabilité instantanée, confiance totale.",
+    solution_desc: "Nous ne faisons pas que numériser : nous créons une chaîne de confiance infalsifiable du champ au rayon.",
+    cta_subtitle: "Calculez exactement combien cette inefficacité coûte à VOTRE entreprise :",
+    import_volume: "Votre volume d'importation",
+    containers_month: "Conteneurs par mois",
+    containers_year: "Conteneurs par an",
+    value_per_container: "Valeur moyenne par conteneur (€)",
+    value_help: "Aide à estimer l'exposition au risque et les économies (%)",
+    hourly_rate: "Taux horaire Achats & QA (€)",
+    rate_help: "Coût horaire de l'équipe conformité/documentation",
+    audit_compliance: "Audit & Conformité",
+    recall_risk: "Évaluation du risque de rappel",
+    current_reality: "📋 Votre réalité documentaire actuelle",
+    hours_per_container: "Heures par conteneur",
+    manual_desc: "Préparation, vérification, soumission et validation manuelles",
+    annual_paperwork_hours: "Heures annuelles de paperasse",
+    staff_time_desc: "Temps dédié aux documents de conformité",
+    current_annual_cost: "Coût annuel actuel",
+    spending_desc: "Ce que vous dépensez aujourd'hui en processus manuels",
+    risk_exposure: "Exposition au risque",
+    annual_risk_desc: "Risque annuel : rappels, erreurs, conformité",
+    what_this_means: "⚠️ Ce que cela signifie vraiment :",
+    transformation_title: "🚀 Votre transformation avec VeriPura",
+    transformation_intro: "De 37,5 à 11,25 heures par conteneur. Du chaos manuel à la précision automatisée.",
+    result_doc: "Économies annuelles de documentation",
+    result_audit: "Économies annuelles d'audit",
+    result_risk: "Valeur de la réduction du risque",
+    result_total: "Économies annuelles totales",
+    result_roi: "ROI avec VeriPura",
+    result_payback: "Délai de retour sur investissement",
+    cta_title: "🎯 Voyons comment cela s'applique à VOTRE cas.",
+    cta_text: "Chaque entreprise est unique. Discutons de vos exigences et d'un ajustement sur mesure.",
+    cta_btn: "📅 Réserver un appel de 30 minutes",
+    cta_sub: "Consultation gratuite • Sans engagement • Conseils personnalisés",
+    get_detailed_report: "🎯 Obtenez votre rapport d'économies détaillé",
+    fill_details_below: "Remplissez vos informations pour recevoir un PDF complet.",
+    company_name: "Nom de l'entreprise *",
+    contact_name: "Nom du contact *",
+    email_address: "Adresse e-mail *",
+    generate_report: "📊 Générer & envoyer mon rapport",
+    email_info: "Le rapport sera envoyé à votre e-mail et en copie à info@veripura.com",
+    footer_site: "Visitez VeriPura.com",
+    footer_contact: "Contact : info@veripura.com",
+    unit_hours: "heures",
+    unit_months: "mois"
+  },
+  nl: {
+    main_title: "Het wereldwijde papierfile in food doorbreken",
+    problem_title: "🚨 De realiteit: 25+ documenten per container. Eén kleine fout = vertragingen, afwijzingen, besmettingsrisico's.",
+    problem_desc: "Handmatig papierwerk, talloze schakels, nul transparantie. Uw keten verzuipt in inefficiëntie.",
+    solution_title: "✅ VeriPura-oplossing: digitale verificatie, directe traceerbaarheid, volledig vertrouwen.",
+    solution_desc: "We zetten niet slechts papier online; we creëren een onvervalsbare vertrouwensketen van boer tot schap.",
+    cta_subtitle: "Bereken exact wat deze inefficiëntie ú kost:",
+    import_volume: "Uw importvolume",
+    containers_month: "Containers per maand",
+    containers_year: "Containers per jaar",
+    value_per_container: "Gemiddelde waarde per container (€)",
+    value_help: "Helpt risico en %-besparing te ramen",
+    hourly_rate: "Uurtarief Inkoop & QA (€)",
+    rate_help: "Uurkosten voor compliance/documentatie",
+    audit_compliance: "Audit & Compliance",
+    recall_risk: "Risico-inschatting productterugroepingen",
+    current_reality: "📋 Uw huidige documentatierealiteit",
+    hours_per_container: "Uren per container",
+    manual_desc: "Handmatige voorbereiding, controle, indiening en verificatie",
+    annual_paperwork_hours: "Jaarlijkse papierwerkuren",
+    staff_time_desc: "Tijd uitsluitend voor compliance-documenten",
+    current_annual_cost: "Huidige jaarlijkse kosten",
+    spending_desc: "Wat u nu uitgeeft aan manuele processen",
+    risk_exposure: "Risicoblootstelling",
+    annual_risk_desc: "Jaarlijks risico: recalls, fouten, compliance",
+    what_this_means: "⚠️ Wat dit écht betekent:",
+    transformation_title: "🚀 Uw transformatie met VeriPura",
+    transformation_intro: "Van 37,5 naar 11,25 uur per container. Van chaos naar automatisering.",
+    result_doc: "Jaarlijkse documentatiebesparing",
+    result_audit: "Jaarlijkse auditbesparing",
+    result_risk: "Waarde van risicoreductie",
+    result_total: "Totale jaarlijkse besparing",
+    result_roi: "ROI met VeriPura",
+    result_payback: "Terugverdientijd",
+    cta_title: "🎯 Precies zien hoe dit voor Ú werkt?",
+    cta_text: "Elk bedrijf is anders. Laten we uw eisen en een passende oplossing bespreken.",
+    cta_btn: "📅 30-minuten call boeken",
+    cta_sub: "Gratis • Vrijblijvend • Persoonlijk advies",
+    get_detailed_report: "🎯 Ontvang uw gedetailleerde besparingsrapport",
+    fill_details_below: "Vul uw gegevens in om een compleet PDF-rapport te ontvangen.",
+    company_name: "Bedrijfsnaam *",
+    contact_name: "Contactpersoon *",
+    email_address: "E-mailadres *",
+    generate_report: "📊 Rapport genereren & e-mailen",
+    email_info: "Rapport wordt naar uw e-mail en in cc naar info@veripura.com gestuurd",
+    footer_site: "Bezoek VeriPura.com",
+    footer_contact: "Contact: info@veripura.com",
+    unit_hours: "uur",
+    unit_months: "maanden"
+  }
+};
 
-    $('#createPO').addEventListener('click', async ()=>{
-      const supplierId = $('#poSupplier').value;
-      if(!supplierId){ toast('Select a supplier.', 'warn'); return; }
-      const items = $$('#poItems tbody tr').map(tr=>{
-        return {
-          name: escapeHTML(tr.querySelector('.it-name').value||''),
-          qty: parseFloat(tr.querySelector('.it-qty').value||'0'),
-          price: parseFloat(tr.querySelector('.it-price').value||'0')
-        };
-      }).filter(it=>it.name && it.qty>0 && it.price>=0);
-      if(items.length===0){ toast('Add at least one item.','warn'); return; }
-      const currency = $('#poCur').value;
-      const rewards = {organic: +$('#rwOrg').value||0, fairTrade:+$('#rwFair').value||0, rainforest:+$('#rwRain').value||0};
-      const total = items.reduce((a,it)=>a+(it.qty*it.price),0);
-      const id = shortId();
-      const msg = $('#poMsg').value.trim();
-      const po = {
-        id, buyerId: session.companyId, supplierId, currency, items, total, status:'Open', labelStatus:'Requested',
-        rewards, docChecklist:[], docs:[], thread:[], shipments:[], trace:{}, createdAt: now()
-      };
-      if(msg) po.thread.push({author: session.companyId+':'+session.role, msg: escapeHTML(msg), ts: now()});
-      save();
-      const file = $('#poFile').files[0];
-      if(file){
-        const reader=new FileReader();
-        reader.onload = async (e)=>{
-          try{
-            const dataUrl = e.target.result; const hash = await hashDataURL(dataUrl);
-            po.docs.push({name:file.name, dataUrl, hash});
-            finalize();
-          } catch(err){ console.error('File read/hash error', err); toast('File processing failed','err'); }
-        };
-        reader.readAsDataURL(file);
-      }else finalize();
-      function finalize(){
-        state.pos.push(po); save(); toast('PO created.'); $('#modal').classList.add('hidden'); $('#modal').innerHTML=''; renderPOs();
-      }
-    });
+window.currentLang = 'en';
+window.t = (key) => (window.translations[window.currentLang]?.[key]) ?? window.translations.en[key] ?? key;
+
+window.applyTranslations = function(){
+  document.querySelectorAll('[data-translate]').forEach(el => {
+    const k = el.getAttribute('data-translate');
+    if (k) el.textContent = window.t(k);
+  });
+};
+
+window.changeLanguage = function(){
+  const sel = document.getElementById('languageSelect');
+  window.currentLang = (sel && sel.value) ? sel.value : 'en';
+  window.applyTranslations?.();
+  window.calculateSavings?.();
+};
+
+document.addEventListener('DOMContentLoaded', function(){
+  // Bind change even if inline attribute gets removed
+  const sel = document.getElementById('languageSelect');
+  if (sel && !sel._vpBound) { sel.addEventListener('change', window.changeLanguage); sel._vpBound = true; }
+  window.changeLanguage();  // initial paint
+});
+    </script>
+
+    <script>
+function calculateSavings() {
+  const countryRates = {
+    'DE': { rate: 30, currency: '€',   name: 'Germany' },
+    'FR': { rate: 32, currency: '€',   name: 'France' },
+    'NL': { rate: 28, currency: '€',   name: 'Netherlands' },
+    'GB': { rate: 35, currency: '£',   name: 'United Kingdom' },
+    'CH': { rate: 40, currency: 'CHF', name: 'Switzerland' }
+  };
+
+  const countryEl = document.getElementById('countrySelect');
+  const country = (countryEl && countryRates[countryEl.value]) ? countryEl.value : 'DE';
+
+  const inputHourlyRate = parseFloat(document.getElementById('hourlyRate')?.value);
+  const hourlyRate = !isNaN(inputHourlyRate) ? inputHourlyRate : (countryRates[country]?.rate || 30);
+  const currency = countryRates[country]?.currency || '€';
+
+  // expose for PDF
+  window.vpCurrency = currency;
+  window.vpCountry  = country;
+
+  const num = id => parseFloat(document.getElementById(id)?.value) || 0;
+
+  const containersMonth = num('containersMonth');
+  let   containersYear  = num('containersYear');
+  const valuePerContainer = num('valuePerContainer');
+  const auditsPerYear   = num('auditsPerYear');
+  const auditHours      = num('auditHours');
+  const recallFrequency = num('recallFrequency');
+  const avgRecallValue  = num('avgRecallValue');
+  const reputationalImpact = num('reputationalImpact');
+  const lostSales       = num('lostSales');
+
+  if (containersMonth > 0) {
+    containersYear = containersMonth * 12;
+    const cy = document.getElementById('containersYear');
+    if (cy) cy.value = containersYear;
   }
 
-  function wireSysAdminHandlers(){
-    const container = document.getElementById('tab-sysadmin');
-    if(!container || container.dataset.wired === '1') return;
-    container.dataset.wired = '1';
-    container.addEventListener('click', (ev) => {
-        const target = ev.target;
-        if(target.matches('.admin-tabs button')){
-            $$('.admin-tabs button').forEach(b => b.classList.remove('active'));
-            target.classList.add('active');
-            $$('.admin-content').forEach(c => c.classList.remove('active'));
-            const tabId = target.dataset.tab;
-            $('#' + tabId).classList.add('active');
-        }
-        if(target.matches('#addUserBtn')){
-          if(!isAtLeast('Standard')){ toast('Standard Admin permission required.', 'err'); return; }
-          openUserModal();
-        }
-        if(target.matches('.btn-edit-user')){
-          if(!isAtLeast('Standard')){ toast('Standard Admin permission required.', 'err'); return; }
-          const userId = target.dataset.id;
-          const targetUser = userById(userId);
-          if(!targetUser || targetUser.companyId !== session.companyId) {
-            toast('Cannot edit users from other companies.', 'err'); 
-             return;
-          }
-          openUserModal(userId);
-        }
-        if(target.matches('.btn-toggle-status')){
-          if(!isAtLeast('Limited')){ toast('Limited Admin permission required.', 'err'); return; }
-          const userId = target.dataset.id;
-          const user = userById(userId);
-          if(!user || user.companyId !== session.companyId) {
-            toast('Cannot modify users from other companies.', 'err'); 
-             return;
-          }
-          const oldStatus = user.status;
-          const newStatus = oldStatus === 'Active' ? 'Suspended' : 'Active';
-          user.status = newStatus;
-          addAuditLog('user_status_change', { targetUserId: user.id, targetUserEmail: user.email, from: oldStatus, to: newStatus });
-          save();
-          toast(`User ${newStatus.toLowerCase()}.`);
-          renderSysAdminUsers(); 
-         }
-        if(target.matches('#exportAuditBtn')){
-          const companyAuditLog = state.auditLog.concat(state.walletAuditLog).filter(log => log.company === session.companyId);
-          exportToCSV(companyAuditLog, 'veripura_company_audit_log.csv');
-        }
-        if(target.matches('#exportSecurityBtn')){
-          const companySecurityEvents = state.securityEvents.filter(log => {
-            const user = userById(log.userId);
-            return user && user.companyId === session.companyId;
-          });
-          exportToCSV(companySecurityEvents, 'veripura_company_security_log.csv');
-        }
-    });
-    container.addEventListener('input', (ev) => {
-      if(ev.target.matches('#userSearch, #userStatusFilter, #userRoleFilter')){
-        renderSysAdminUsers();
-      }
-    });
+  const currentHoursPerContainer = 37.5;
+  const currentCostPerContainer  = currentHoursPerContainer * hourlyRate;
+  const totalCurrentHours        = currentHoursPerContainer * containersYear + (auditsPerYear * auditHours);
+  const totalCurrentCost         = currentCostPerContainer * containersYear + (auditsPerYear * auditHours * hourlyRate);
+
+  const totalRecallCost  = avgRecallValue + reputationalImpact + lostSales;
+  const annualRecallRisk = (recallFrequency / 5) * totalRecallCost;
+
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+  set('currentHours', `${currentHoursPerContainer} ${t('unit_hours')}`);
+  set('annualHours', `${Math.round(totalCurrentHours).toLocaleString()} ${t('unit_hours')}`);
+  set('currentCost', `${currency}${Math.round(totalCurrentCost).toLocaleString()}`);
+  set('riskExposure', `${currency}${Math.round(annualRecallRisk).toLocaleString()}`);
+
+  if (typeof updateImplications === 'function') {
+    updateImplications(containersYear, totalCurrentHours, currency, Math.round(totalCurrentCost), valuePerContainer);
   }
 
-  function renderSysAdmin(){
-    if(session.role !== 'Sys Admin'){
-        $('#tab-sysadmin').innerHTML = `<div class="card">Access denied.</div>`;
-        return;
-    }
-    wireSysAdminHandlers();
-    
-    const users = state.users || [];
-    const companyUsers = users.filter(u => u.companyId === session.companyId);
-    const metrics = {
-        users: companyUsers.length,
-        active: companyUsers.filter(u=>u.status==='Active').length,
-        suspended: companyUsers.filter(u=>u.status==='Suspended').length,
-        pos: state.pos.filter(p => p.buyerId === session.companyId || p.supplierId === session.companyId).length,
-        partners: state.partners.filter(p => p.aId === session.companyId || p.bId === session.companyId).length
-    };
-    $('#tab-sysadmin').innerHTML = `
-      <div class="admin-tabs">
-          <button data-tab="admin-overview" class="active">Overview</button>
-          <button data-tab="admin-users">User Management</button>
-          <button data-tab="admin-security">Security Center</button>
-          <button data-tab="admin-interface">Interface Management</button>
-          <button data-tab="admin-audit">Audit & Compliance</button>
-      </div>
-      <div id="admin-overview" class="admin-content active">
-          <div class="section-title">System Health Dashboard</div>
-          <div class="grid cols-4">
-              <div class="card metric"><div class="h">Company Users</div><div class="v">${metrics.users}</div></div>
-              <div class="card metric"><div class="h">Active Users</div><div class="v oktext">${metrics.active}</div></div>
-              <div class="card metric"><div class="h">Suspended</div><div class="v warntext">${metrics.suspended}</div></div>
-              <div class="card metric"><div class="h">Company POs</div><div class="v">${metrics.pos}</div></div>
-          </div>
-          <div class="card" style="margin-top:1rem;">
-              <div class="section-title">Recent Admin Actions</div>
-              <table class="table small">
-                <thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Detail</th></tr></thead>
-                <tbody>${state.auditLog.filter(a => a.company === session.companyId).slice().reverse().slice(0,5).map(a => `
-                  <tr>
-                    <td>${a.ts}</td>
-                    <td>${escapeHTML(a.actor)}</td>
-                    <td>${escapeHTML(a.action)}</td>
-                    <td>${escapeHTML( (a.targetUserEmail || '') + (a.poId? 'PO '+a.poId:'') )}</td>
-                  </tr>`).join('') || '<tr><td colspan="4" class="muted">No admin actions recorded.</td></tr>'}
-                </tbody>
-              </table>
-          </div>
-      </div>
-      <div id="admin-users" class="admin-content">
-      </div>
-      <div id="admin-security" class="admin-content">
-        <div class="section-title">Security Center</div>
-        <div class="card">
-          <p>Password policies, MFA management, and security event monitoring would be configured here in a production system.</p>
-          <p class="muted small">This is a placeholder for the demo.</p>
-        </div>
-      </div>
-      <div id="admin-interface" class="admin-content">
-        <div class="section-title">Interface Management</div>
-        <div class="card">
-          <p>API keys, webhooks, and other system integration settings would be managed here.</p>
-          <p class="muted small">This is a placeholder for the demo.</p>
-        </div>
-      </div>
-      <div id="admin-audit" class="admin-content">
-        <div class="grid cols-2">
-          <div class="card">
-            <div class="row-between">
-              <div class="section-title">Company Audit Log</div>
-              <button id="exportAuditBtn" class="btn">Export CSV</button>
-            </div>
-            <div style="max-height: 400px; overflow-y: auto;">
-            <table class="table small">
-              <thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Detail</th></tr></thead>
-              <tbody>${state.auditLog.concat(state.walletAuditLog).filter(log => log.company === session.companyId).sort((a,b)=>b.ts.localeCompare(a.ts)).map(log => `
-                <tr>
-                  <td>${escapeHTML(log.ts)}</td>
-                  <td>${escapeHTML(log.actor || log.company)}</td>
-                  <td>${escapeHTML(log.action)}</td>
-                  <td>${escapeHTML(JSON.stringify(log.changes || log.detail || log.targetUserEmail || log.poId || ''))}</td>
-                </tr>`).join('')}
-              </tbody>
-            </table>
-            </div>
-          </div>
-          <div class="card">
-            <div class="row-between">
-              <div class="section-title">Security Events Log</div>
-              <button id="exportSecurityBtn" class="btn">Export CSV</button>
-            </div>
-            <div style="max-height: 400px; overflow-y: auto;">
-            <table class="table small">
-              <thead><tr><th>When</th><th>Type</th><th>Reason</th><th>User</th></tr></thead>
-              <tbody>${(state.securityEvents || []).filter(log => {
-                const user = userById(log.userId);
-                return user && user.companyId === session.companyId;
-              }).sort((a,b)=>b.ts.localeCompare(a.ts)).map(log => `
-                <tr>
-                  <td>${escapeHTML(log.ts)}</td>
-                  <td>${escapeHTML(log.type)}</td>
-                  <td>${escapeHTML(log.reason)}</td>
-                  <td>${escapeHTML(log.email)}</td>
-                </tr>`).join('')}
-              </tbody>
-            </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-    renderSysAdminUsers();
-  }
+  const oldDocCostPerContainer = 37.5 * hourlyRate;
+  const newDocCostPerContainer = 11.25 * hourlyRate;
+  const docSavingsPerContainer = oldDocCostPerContainer - newDocCostPerContainer;
+  const annualDocSavings       = docSavingsPerContainer * containersYear;
 
-  function renderSysAdminUsers() {
-    const container = $('#admin-users');
-    if(!container) return;
-    const searchTerm = ($('#userSearch')?.value || '').toLowerCase();
-    const statusFilter = $('#userStatusFilter')?.value || 'all';
-    const roleFilter = $('#userRoleFilter')?.value || 'all';
-    
-    let filteredUsers = (state.users || []).filter(u => {
-      const sameCompany = u.companyId === session.companyId;
-      const matchesSearch = u.name.toLowerCase().includes(searchTerm) || u.email.toLowerCase().includes(searchTerm);
-      const matchesStatus = statusFilter === 'all' || u.status === statusFilter;
-      const matchesRole = roleFilter === 'all' || u.role === roleFilter;
-      return sameCompany && matchesSearch && matchesStatus && matchesRole;
-    });
-    
-    const companyUsers = (state.users || []).filter(u => u.companyId === session.companyId);
-    const allRoles = [...new Set(companyUsers.map(u => u.role))];
-    container.innerHTML = `
-      <div class="row-between">
-          <div class="section-title">User Management</div>
-          <button id="addUserBtn" class="btn btn-brand">Add New User</button>
-      </div>
-      <div class="card">
-          <div class="inline-form" style="padding-bottom:1rem; border-bottom:1px solid var(--border); margin-bottom:1rem;">
-              <input id="userSearch" class="input" placeholder="Search by name or email..." />
-              <select id="userStatusFilter" class="input">
-                  <option value="all">All Statuses</option>
-                  <option value="Active">Active</option>
-                  <option value="Suspended">Suspended</option>
-              </select>
-              <select id="userRoleFilter" class="input">
-                  <option value="all">All Roles</option>
-                  ${allRoles.map(r => `<option value="${r}">${r}</option>`).join('')}
-              </select>
-          </div>
-          <table class="table">
-              <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>MFA</th><th>Admin Level</th><th>Actions</th></tr></thead>
-              <tbody>${filteredUsers.map(u => `
-                  <tr>
-                      <td>${escapeHTML(u.name)}</td>
-                      <td>${escapeHTML(u.email)}</td>
-                      <td>${escapeHTML(u.role)}</td>
-                      <td><span class="tag ${u.status==='Active' ? 'ok' : 'warn'}">${u.status}</span></td>
-                      <td><span class="pill">${u.mfaEnabled ? 'On' : 'Off'}</span></td>
-                      <td><span class="chip">${u.adminLevel}</span></td>
-                      <td class="nowrap">
-                          <button class="btn btn-primary small btn-edit-user" data-id="${u.id}">Edit</button>
-                          <button class="btn ${u.status==='Active' ? 'btn-warn' : 'btn-ok'} small btn-toggle-status" data-id="${u.id}">
-                              ${u.status==='Active' ? 'Suspend' : 'Activate'}
-                          </button>
-                      </td>
-                  </tr>`).join('') || '<tr><td colspan="7" class="muted">No users match filters.</td></tr>'}
-              </tbody>
-          </table>
-      </div>`;
-  }
+  const oldAuditCost       = auditsPerYear * auditHours * hourlyRate;
+  const newAuditCost       = oldAuditCost * 0.1;
+  const annualAuditSavings = oldAuditCost - newAuditCost;
 
-  function openUserModal(userId = null){
-    const user = userId ? userById(userId) : null;
-    const isEditing = !!user;
-    const modal = $('#modal');
-    modal.classList.remove('hidden');
-    const companyOptions = `<option value="${session.companyId}" selected>${escapeHTML(companyById(session.companyId).name)}</option>`;
+  const riskReductionSavings = annualRecallRisk * 0.8;
 
-    const companyType = typeOf(session.companyId);
-    const availableRoles = state.roles[companyType] || [];
-    const roleOptions = availableRoles.map(r => `<option value="${r}" ${user?.role === r ? 'selected':''}>${escapeHTML(r)}</option>`).join('');
-    const adminLevelOptions = ['None', 'Limited', 'Standard', 'Super'].map(lvl => `<option value="${lvl}" ${user?.adminLevel === lvl ? 'selected':''}>${lvl}</option>`).join('');
-    modal.innerHTML = `
-      <div class="card" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);z-index:999;">
-        <div class="card" style="width:500px;background:#0d1217">
-          <div class="row-between">
-            <div class="section-title">${isEditing ? 'Edit User' : 'Add New User'}</div>
-            <button id="xModal" class="btn">×</button>
-          </div>
-          <div class="col">
-            <label class="label">Full Name</label>
-            <input id="userName" class="input" value="${escapeHTML(user?.name || '')}" />
-            <label class="label">Email</label>
-            <input id="userEmail" class="input" type="email" value="${escapeHTML(user?.email || '')}" ${isEditing ? 'readonly' : ''} />
-            <label class="label">Company</label>
-            <select id="userCompany" class="input" disabled>${companyOptions}</select>
-            <label class="label">Role</label>
-            <select id="userRole" class="input">${roleOptions}</select>
-            <label class="label">Admin Level</label>
-            <select id="userAdminLevel" class="input" ${!isAtLeast('Super') ? 'disabled':''}>${adminLevelOptions}</select>
-            <div class="row">
-              <input type="checkbox" id="userMfa" ${user?.mfaEnabled ? 'checked':''}>
-              <label for="userMfa" class="label">MFA Enabled</label>
-            </div>
-            <div class="row right">
-              <button id="saveUserBtn" class="btn btn-brand">${isEditing ? 'Save Changes' : 'Create User'}</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-    $('#xModal').addEventListener('click', () => { modal.classList.add('hidden'); modal.innerHTML=''; });
-    $('#saveUserBtn').addEventListener('click', () => {
-        const name = $('#userName').value.trim();
-        const email = $('#userEmail').value.trim();
-        const companyId = session.companyId;
-        const role = $('#userRole').value;
-        const adminLevel = $('#userAdminLevel').value;
-        const mfaEnabled = $('#userMfa').checked;
-        if(!name || !email || !role){
-            toast('All fields are required.', 'warn');
-            return;
-        }
-        if(isEditing){
-            const originalUser = deepClone(user);
-            user.name = name;
-            user.companyId = companyId;
-            user.role = role;
-            if(isAtLeast('Super')) user.adminLevel = adminLevel;
-            user.mfaEnabled = mfaEnabled;
-            addAuditLog('user_update', {
-              targetUserId: user.id,
-              targetUserEmail: user.email,
-              changes: getObjectDiff(originalUser, user)
-            });
-            toast('User updated successfully.');
-        } else {
-            if((state.users || []).find(u => u.email.toLowerCase() === email.toLowerCase())){
-              toast('User with this email already exists.', 'err');
-              return;
+  const SAAS_COST_MONTHLY = 2500;
+  const SAAS_COST_ANNUAL  = SAAS_COST_MONTHLY * 12;
+
+  const totalAnnualSavings = annualDocSavings + annualAuditSavings + riskReductionSavings;
+  const netSavings         = totalAnnualSavings - SAAS_COST_ANNUAL;
+  const roi                = SAAS_COST_ANNUAL > 0 ? ((netSavings / SAAS_COST_ANNUAL) * 100) : 0;
+  const paybackMonths      = totalAnnualSavings > 0 ? (SAAS_COST_ANNUAL / (totalAnnualSavings / 12)) : 0;
+
+  set('docSavings',   `${currency}${Math.round(annualDocSavings).toLocaleString()}`);
+  set('auditSavings', `${currency}${Math.round(annualAuditSavings).toLocaleString()}`);
+  set('riskSavings',  `${currency}${Math.round(riskReductionSavings).toLocaleString()}`);
+  set('totalSavings', `${currency}${Math.round(totalAnnualSavings).toLocaleString()}`);
+  set('roi',          `${Math.round(roi)}%`);
+  set('payback',      `${Math.round(paybackMonths)} ${t('unit_months')}`);
+}
+
+        window.updateImplications = function(containers, hours, currency, cost, valuePerContainer) {
+            const implicationsList = document.getElementById('implicationsList');
+            const implications = [];
+
+            if (containers > 0) {
+                const daysPerMonth = Math.round(hours / (containers * 8) * containers / 12);
+                implications.push(`${daysPerMonth} full working days per month spent JUST on paperwork`);
             }
-            const newUser = {
-                id: shortId('U'),
-                name, email, companyId, role, adminLevel: isAtLeast('Super') ? adminLevel : 'None', mfaEnabled,
-                status: 'Active',
-                createdAt: now(),
-                lastLogin: null
-            };
-            state.users.push(newUser);
-            addAuditLog('user_create', {targetUserId: newUser.id, targetUserEmail: newUser.email});
-            toast('User created successfully.');
-        }
-        save();
-        renderSysAdminUsers();
-        modal.classList.add('hidden');
-        modal.innerHTML='';
-    });
-  }
 
-  function getObjectDiff(orig, updated) {
-    const diff = [];
-    for(const key in updated){
-      if(orig.hasOwnProperty(key) && String(orig[key]) !== String(updated[key])){
-        diff.push({ field: key, from: orig[key], to: updated[key]});
-      }
-    }
-    return diff;
-  }
-
-  function exportToCSV(data, filename) {
-    if (!data || data.length === 0) {
-      toast('No data to export.', 'warn');
-      return;
-    }
-    const replacer = (key, value) => value === null ? '' : value;
-    const header = Object.keys(data[0]);
-    const csv = [
-      header.join(','),
-      ...data.map(row => header.map(fieldName => JSON.stringify(row[fieldName], replacer)).join(','))
-    ].join('\r\n');
-
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", filename);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  }
-  
-  function canManageDocuments(){
-    const allowedRoles = ['QA Manager', 'Logistics Manager', 'Logistics Coordinator', 'Sys Admin'];
-    return allowedRoles.includes(session.role);
-  }
-  function canViewDocuments(){
-    return true; 
-  }
-  function getDocumentStatus(doc){
-    if (!doc.expiresAt) return 'Permanent';
-    const daysLeft = (new Date(doc.expiresAt) - Date.now()) / 86400000;
-    if (daysLeft <= 0) return 'Expired';
-    if (daysLeft <= 30) return 'Expiring Soon';
-    return 'Valid';
-  }
-  function getCompanyDocuments(companyId){
-    return state.companyDocuments?.filter(doc => doc.companyId === companyId) || [];
-  }
-  
-  function fileToDataURL(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-        reader.readAsDataURL(file);
-    });
-  }
-
-  async function uploadCompanyDocument(file, metadata){
-    if (!canManageDocuments()) {
-      toast('Your role cannot upload documents.', 'err');
-      return false;
-    }
-    if (file.size > MAX_FILE_SIZE) {
-      toast('File too large (max 5MB)', 'err');
-      return false;
-    }
-    try {
-      const dataUrl = await fileToDataURL(file);
-      const hash = await hashDataURL(dataUrl);
-      const doc = {
-        id: shortId('DOC'),
-        companyId: session.companyId,
-        name: metadata.name || file.name,
-        category: metadata.category,
-        type: metadata.type,
-        description: metadata.description,
-        fileHash: hash,
-        dataUrl: dataUrl,
-        uploadedBy: session.userId,
-        uploadedAt: now(),
-        expiresAt: metadata.expiresAt,
-        tags: metadata.tags || []
-      };
-      if (!state.companyDocuments) state.companyDocuments = [];
-      state.companyDocuments.push(doc);
-      addAuditLog('document_upload', {
-        documentId: doc.id,
-        documentName: doc.name,
-        category: doc.category
-      });
-      save();
-      return doc;
-    } catch (err) {
-      console.error(err);
-      toast('Document upload failed', 'err');
-      return false;
-    }
-  }
-
-  function getCategoryDescription(category) {
-    const descs = {
-      'Regulatory': 'Official permits and licenses required for operation.',
-      'Quality & Safety': 'Certifications related to food safety and quality standards.',
-      'Sustainability': 'Documents for ethical and environmental claims.',
-      'Operational': 'Logistics, insurance, and commercial paperwork.',
-      'Product-Specific': 'Detailed analysis and specifications for products.'
-    };
-    return descs[category] || 'General documents.';
-  }
-
-  function renderDocuments(){
-    const me = companyById(session.companyId);
-    const documents = getCompanyDocuments(me.id);
-    const canManage = canManageDocuments();
-    
-    const docsByCategory = {};
-    if (state.documentCategories) {
-        Object.keys(state.documentCategories).forEach(cat => {
-            docsByCategory[cat] = documents.filter(doc => doc.category === cat);
-        });
-    }
-
-    $('#tab-documents').innerHTML = `
-      <div class="row-between">
-        <div class="section-title">Company Documents</div>
-        <button id="btnUploadDoc" class="btn btn-brand ${canManage ? '' : 'hidden'}">Upload Document</button>
-      </div>
-      <div class="grid cols-1" style="gap:1rem;">
-        ${Object.entries(docsByCategory).map(([category, docs]) => `
-          <div class="card">
-            <div class="row-between">
-              <h3 style="margin:0;">${escapeHTML(category)} (${docs.length})</h3>
-              <span class="muted small">${getCategoryDescription(category)}</span>
-            </div>
-            <div class="divider"></div>
-            ${docs.length > 0 ? renderDocumentTable(docs) : '<div class="muted">No documents in this category.</div>'}
-          </div>
-        `).join('')}
-      </div>
-    `;
-    if (canManage) {
-      $('#btnUploadDoc').addEventListener('click', openUploadModal);
-    }
-    wireDocumentActions();
-  }
-
-  function renderDocumentTable(docs){
-    return `
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Document</th><th>Type</th><th>Status</th><th>Expires</th><th>Uploaded</th><th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${docs.map(doc => {
-            const status = getDocumentStatus(doc);
-            const statusClass = status === 'Valid' ? 'ok' : status === 'Expired' ? 'block' : 'warn';
-            return `
-              <tr>
-                <td>
-                  <strong>${escapeHTML(doc.name)}</strong>
-                  ${doc.description ? `<br><span class="muted small">${escapeHTML(doc.description)}</span>` : ''}
-                </td>
-                <td>${escapeHTML(doc.type || '-')}</td>
-                <td><span class="tag ${statusClass}">${status}</span></td>
-                <td class="small">${doc.expiresAt ? new Date(doc.expiresAt).toLocaleDateString() : 'Never'}</td>
-                <td class="small">${new Date(doc.uploadedAt).toLocaleDateString()}</td>
-                <td class="nowrap">
-                  <button class="btn btn-primary small btn-view-doc" data-id="${doc.id}">View</button>
-                  <button class="btn btn-primary small btn-attach-doc" data-id="${doc.id}">Attach to PO</button>
-                  ${canManageDocuments() ? `<button class="btn btn-danger small btn-delete-doc" data-id="${doc.id}">Delete</button>` : ''}
-                </td>
-              </tr>
-            `;
-          }).join('')}
-        </tbody>
-      </table>
-    `;
-  }
-
-  function openUploadModal(){
-    const modal = $('#modal');
-    modal.classList.remove('hidden');
-    const categories = Object.keys(state.documentCategories || {});
-    const categoryOptions = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
-    modal.innerHTML = `
-      <div class="card" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);z-index:999">
-        <div class="card" style="width:600px;background:#0d1217">
-          <div class="row-between">
-            <div class="section-title">Upload Company Document</div>
-            <button id="xModal" class="btn">×</button>
-          </div>
-          <div class="col">
-            <label class="label">Document File</label>
-            <input id="docFile" class="input" type="file" accept=".pdf,.jpg,.jpeg,.png" />
-            <label class="label">Document Name</label>
-            <input id="docName" class="input" placeholder="Enter document name" />
-            <label class="label">Category</label>
-            <select id="docCategory" class="input">${categoryOptions}</select>
-            <label class="label">Document Type</label>
-            <select id="docType" class="input"></select>
-            <label class="label">Description (Optional)</label>
-            <textarea id="docDescription" class="input" placeholder="Additional notes about this document"></textarea>
-            <label class="label">Expiration Date (Optional)</label>
-            <input id="docExpires" class="input" type="date" />
-            <div class="row right" style="margin-top:1rem;">
-              <button id="uploadBtn" class="btn btn-brand">Upload Document</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-    $('#docCategory').addEventListener('change', updateDocumentTypes);
-    $('#xModal').addEventListener('click', () => { modal.classList.add('hidden'); modal.innerHTML=''; });
-    $('#uploadBtn').addEventListener('click', handleDocumentUpload);
-    updateDocumentTypes();
-  }
-  
-  function updateDocumentTypes() {
-    const category = $('#docCategory').value;
-    const types = state.documentCategories[category] || [];
-    const typeSelect = $('#docType');
-    typeSelect.innerHTML = types.map(t => `<option value="${t}">${t}</option>`).join('');
-  }
-
-  async function handleDocumentUpload() {
-    const fileInput = $('#docFile');
-    const file = fileInput.files[0];
-    if (!file) {
-        toast('Please select a file to upload.', 'warn');
-        return;
-    }
-    const metadata = {
-        name: $('#docName').value.trim(),
-        category: $('#docCategory').value,
-        type: $('#docType').value,
-        description: $('#docDescription').value.trim(),
-        expiresAt: $('#docExpires').value || null
-    };
-
-    if (!metadata.name) {
-        toast('Document Name is required.', 'warn');
-        return;
-    }
-    
-    const uploadedDoc = await uploadCompanyDocument(file, metadata);
-    if (uploadedDoc) {
-        toast('Document uploaded successfully.', 'ok');
-        $('#modal').classList.add('hidden');
-        $('#modal').innerHTML = '';
-        renderDocuments();
-    }
-  }
-
-  function wireDocumentActions() {
-    const container = $('#tab-documents');
-    if (!container) return;
-    container.addEventListener('click', (ev) => {
-        const btn = ev.target.closest('button');
-        if (!btn) return;
-        const docId = btn.dataset.id;
-        if (!docId) return;
-
-        if (btn.classList.contains('btn-view-doc')) {
-            const doc = state.companyDocuments.find(d => d.id === docId);
-            if (doc && doc.dataUrl) {
-                window.open(doc.dataUrl, '_blank');
-            } else {
-                toast('Document content not available for viewing.', 'warn');
+            if (hours > 2000) {
+                implications.push(`That's more than a full-time employee dedicated solely to compliance documentation`);
+            } else if (hours > 1000) {
+                implications.push(`That's half a full-time employee's year spent on manual paperwork`);
             }
-        }
-        
-        if (btn.classList.contains('btn-delete-doc')) {
-            if (confirm('Are you sure you want to delete this document?')) {
-                const docIndex = state.companyDocuments.findIndex(d => d.id === docId);
-                if (docIndex > -1) {
-                    const doc = state.companyDocuments[docIndex];
-                    addAuditLog('document_delete', { documentId: doc.id, documentName: doc.name });
-                    state.companyDocuments.splice(docIndex, 1);
-                    save();
-                    toast('Document deleted.');
-                    renderDocuments();
+
+            if (cost > 50000) {
+                implications.push(`${currency}${Math.round(cost/1000)}K annually - enough to hire additional strategic staff`);
+            }
+
+            // Add value-based implications
+            if (valuePerContainer > 0 && containers > 0) {
+                const totalValue = valuePerContainer * containers;
+                const complianceCostPercentage = (cost / totalValue) * 100;
+                if (complianceCostPercentage > 1) {
+                    implications.push(`Compliance costs represent ${complianceCostPercentage.toFixed(1)}% of your total container value`);
                 }
             }
+
+            implications.push(`Every document manually prepared = risk of human error and compliance gaps`);
+            implications.push(`Audit season = late nights, weekend work, and high stress for your team`);
+            implications.push(`Manual processes = bottlenecks that delay shipments and frustrate customers`);
+            
+            if (containers > 10) {
+                implications.push(`Scaling up? Your documentation burden grows exponentially with each new container`);
+            }
+
+            // Update the DOM
+            implicationsList.innerHTML = implications.map(imp => `<li>${imp}</li>`).join('');
         }
-        
-        if (btn.classList.contains('btn-attach-doc')) {
-            openAttachToPOModal(docId);
+
+        window.generatePDF = function() {
+            // Validate required fields
+            const companyName = document.getElementById('companyName').value;
+            const contactName = document.getElementById('contactName').value;
+            const email = document.getElementById('email').value;
+
+            if (!companyName || !contactName || !email) {
+                alert('Please fill in all required fields (Company Name, Contact Name, Email)');
+                return;
+            }
+
+            // Get current calculations
+            const hourlyRate = parseFloat(document.getElementById('hourlyRate').value) || 30;
+            const selectedLanguage = document.getElementById('languageSelect').value;
+            
+            // Collect all data for PDF
+            const reportData = {
+                companyName,
+                contactName,
+                email,
+                language: selectedLanguage,
+                hourlyRate: hourlyRate,
+                currency: window.vpCurrency || '€',
+                containersMonth: document.getElementById('containersMonth').value || 0,
+                containersYear: document.getElementById('containersYear').value || 0,
+                valuePerContainer: document.getElementById('valuePerContainer').value || 0,
+                auditsPerYear: document.getElementById('auditsPerYear').value || 0,
+                auditHours: document.getElementById('auditHours').value || 0,
+                recallFrequency: document.getElementById('recallFrequency').value || 0,
+                avgRecallValue: document.getElementById('avgRecallValue').value || 0,
+                reputationalImpact: document.getElementById('reputationalImpact').value || 0,
+                lostSales: document.getElementById('lostSales').value || 0,
+                docSavings: document.getElementById('docSavings').textContent,
+                auditSavings: document.getElementById('auditSavings').textContent,
+                riskSavings: document.getElementById('riskSavings').textContent,
+                totalSavings: document.getElementById('totalSavings').textContent,
+                roi: document.getElementById('roi').textContent,
+                payback: document.getElementById('payback').textContent
+            };
+
+            window.createPDF(reportData);
         }
-    });
-  }
 
-  function openAttachToPOModal(docId) {
-    const modal = $('#modal');
-    modal.classList.remove('hidden');
-    const myOpenPOs = state.pos.filter(p => (p.buyerId === session.companyId || p.supplierId === session.companyId) && p.status !== 'Completed');
-    
-    if (myOpenPOs.length === 0) {
-      toast('You have no open POs to attach this document to.', 'warn');
-      modal.classList.add('hidden');
-      return;
-    }
+function createPDF(data) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const currency = window.vpCurrency || '€';
 
-    const poOptions = myOpenPOs.map(po => `<option value="${po.id}">PO ${po.id} (${po.items[0].name})</option>`).join('');
-    
-    modal.innerHTML = `
-      <div class="card" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);z-index:999">
-        <div class="card" style="width:500px;background:#0d1217">
-          <div class="row-between">
-            <div class="section-title">Attach Document to PO</div>
-            <button id="xModal" class="btn">×</button>
-          </div>
-          <div class="col">
-            <label class="label">Select a Purchase Order</label>
-            <select id="poSelect" class="input">${poOptions}</select>
-            <div class="row right" style="margin-top:1rem;">
-              <button id="confirmAttachBtn" class="btn btn-brand">Attach</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-    
-    $('#xModal').addEventListener('click', () => { modal.classList.add('hidden'); modal.innerHTML=''; });
-    $('#confirmAttachBtn').addEventListener('click', () => {
-      const poId = $('#poSelect').value;
-      attachDocumentToPO(docId, poId);
-      if ($('#tab-pos') && !$('#tab-pos').classList.contains('hidden')) {
-        renderPOs();
-      }
-      modal.classList.add('hidden');
-      modal.innerHTML = '';
-    });
-  }
-  
-  function attachDocumentToPO(docId, poId){
-    const doc = state.companyDocuments?.find(d => d.id === docId);
-    const po = state.pos.find(p => p.id === poId);
-    if (!doc || !po) return;
+  // Header
+  doc.setFillColor(30, 64, 175);
+  doc.rect(0, 0, 210, 50, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(24); doc.text('VeriPura', 20, 25);
+  doc.setFontSize(12); doc.text('Breaking the Global Food Paper Jam', 20, 35);
+  doc.text(`Generated: ${new Date().toLocaleDateString()}`, 150, 25);
+  doc.text('www.veripura.com', 150, 35);
 
-    if (!po.attachedDocs) po.attachedDocs = [];
-    if (po.attachedDocs.some(d => d.docId === docId)) {
-      toast(`Document is already attached to PO ${poId}`, 'warn');
-      return;
-    }
-    
-    po.attachedDocs.push({
-      docId: doc.id,
-      name: doc.name,
-      attachedBy: session.userId,
-      attachedAt: now()
-    });
+  // Company block
+  doc.setTextColor(30, 64, 175);
+  doc.setFontSize(16); doc.text('Savings Analysis Report', 20, 70);
 
-    po.thread.push({
-      author: session.companyId + ':' + session.role,
-      msg: `Attached company document: ${escapeHTML(doc.name)}`,
-      ts: now()
-    });
-    save();
-    toast(`Document attached to PO ${poId}`);
-  }
+  doc.setTextColor(0,0,0);
+  doc.setFontSize(12);
+  doc.text(`Company: ${data.companyName}`, 20, 85);
+  doc.text(`Contact: ${data.contactName}`, 20, 95);
+  doc.text(`Email: ${data.email}`, 20, 105);
+  doc.text(`Hourly Rate: ${currency}${data.hourlyRate}/hour`, 20, 115);
 
-  // Always start with login screen
-  renderLogin();
+  // Volume & Ops
+  doc.setTextColor(30, 64, 175);
+  doc.setFontSize(16); doc.text('Import Volume & Operations', 20, 135);
 
-})();
-</script>
+  doc.setTextColor(0,0,0); doc.setFontSize(12);
+  doc.text(`Containers per Month: ${data.containersMonth}`, 20, 150);
+  doc.text(`Containers per Year: ${data.containersYear}`, 20, 160);
+  doc.text(`Value per Container: ${currency}${Number(data.valuePerContainer).toLocaleString()}`, 20, 170);
+  doc.text(`Audits per Year: ${data.auditsPerYear}`, 20, 180);
+  doc.text(`Hours per Audit: ${data.auditHours}`, 20, 190);
+
+  // Risk Assessment
+  doc.setTextColor(30, 64, 175);
+  doc.setFontSize(16); doc.text('Risk Assessment', 20, 210);
+
+  doc.setTextColor(0,0,0); doc.setFontSize(12);
+  doc.text(`Recalls (5 years): ${data.recallFrequency}`, 20, 225);
+  doc.text(`Avg Recall Value: ${currency}${Number(data.avgRecallValue).toLocaleString()}`, 20, 235);
+  doc.text(`Reputational Impact: ${currency}${Number(data.reputationalImpact).toLocaleString()}`, 20, 245);
+  doc.text(`Lost Future Sales: ${currency}${Number(data.lostSales).toLocaleString()}`, 20, 255);
+
+  // New page for Savings (prevents overflow)
+  doc.addPage();
+  let y = 20;
+
+  doc.setFillColor(59,130,246);
+  doc.rect(15, y, 180, 8, 'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(18); doc.text('Annual Savings with VeriPura', 20, y + 5);
+
+  y += 18;
+  doc.setTextColor(0,0,0);
+  doc.setFontSize(14);
+  doc.text(`Documentation Savings: ${data.docSavings}`, 20, y);  y += 10;
+  doc.text(`Audit Savings: ${data.auditSavings}`, 20, y);        y += 10;
+  doc.text(`Risk Reduction Value: ${data.riskSavings}`, 20, y);  y += 12;
+
+  doc.setTextColor(34,197,94);
+  doc.setFontSize(16);
+  doc.text(`Total Annual Savings: ${data.totalSavings}`, 20, y); y += 10;
+  doc.text(`ROI: ${data.roi}`, 20, y);                           y += 10;
+  doc.text(`Payback Period: ${data.payback}`, 20, y);            y += 16;
+
+  // Footer (within page bounds)
+  doc.setFillColor(30, 64, 175);
+  doc.rect(0, 280, 210, 12, 'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(10);
+  doc.text('VeriPura - Revolutionizing Food Trust Through Digital Verification', 20, 287);
+
+  const fileName = `VeriPura_Savings_Report_${data.companyName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+  doc.save(fileName);
+
+  alert(`PDF report generated successfully!\n\nLocally saved. In production, this would be emailed to:\n- ${data.email}\n- info@veripura.com`);
+  emailReport(data, doc.output('datauristring'));
+}
+
+        window.emailReport = function(data, pdfData) {
+            // Placeholder function for future email integration
+            console.log('Email integration placeholder');
+            console.log('Recipient:', data.email);
+            console.log('CC:', 'info@veripura.com');
+            console.log('PDF data ready for transmission');
+            
+            // This is where you would integrate with your email service
+            // For example:
+            // - Send to an API endpoint
+            // - Integrate with services like SendGrid, Mailgun, etc.
+            // - Use a webhook to trigger email sending
+        }
+    </script>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+  window.changeLanguage();
+  window.calculateSavings?.();
+});
+    </script>
 </body>
 </html>
